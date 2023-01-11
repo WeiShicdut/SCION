@@ -341,7 +341,6 @@ ylabel('GAST (C)')
 plot(Scotese_2021_age,Scotese_2021_GAT,'color',pc1)
 %%%% plot this model
 plot(state.time_myr,state.tempC,'k')
-plot(state.time_myr,state.SAT_equator,'r')
 
 %%%% ICE LINE
 subplot(4,4,16)
