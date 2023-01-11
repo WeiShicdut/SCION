@@ -330,28 +330,66 @@ function run = SCION_initialise(runcontrol)
 
 
     %%%% model start state
-    pars.startstate(1) = pars.pstart ;
-    pars.startstate(2) = pars.ostart ;
-    pars.startstate(3) = pars.astart ;
-    pars.startstate(4) = pars.sstart ;
-    pars.startstate(5) = pars.gstart ;
-    pars.startstate(6) = pars.cstart ;
-    pars.startstate(7) = pars.pyrstart ;
-    pars.startstate(8) = pars.gypstart ;
-    pars.startstate(9) = pars.tempstart ;
-    pars.startstate(10) = pars.CAL_start ;
-    pars.startstate(11) = pars.N_start ;
-    pars.startstate(12) = pars.gstart * pars.delta_G_start ;
-    pars.startstate(13) = pars.cstart * pars.delta_C_start ;
-    pars.startstate(14) = pars.pyrstart * pars.delta_PYR_start ;
-    pars.startstate(15) = pars.gypstart * pars.delta_GYP_start ;
-    pars.startstate(16) = pars.astart * pars.delta_A_start ;
-    pars.startstate(17) = pars.sstart * pars.delta_S_start ;
-    pars.startstate(18) = pars.OSr_start ;
-    pars.startstate(19) = pars.OSr_start * pars.delta_OSr_start ;
-    pars.startstate(20) = pars.SSr_start ;
-    pars.startstate(21) = pars.SSr_start * pars.delta_SSr_start ;
-
+    pars.startstate(1) = pars.CO2_a_start ;
+    pars.startstate(2) = pars.DIC_p_start ;
+    pars.startstate(3) = pars.DIC_di_start ;
+    pars.startstate(4) = pars.DIC_s_start ;
+    pars.startstate(5) = pars.DIC_h_start ;
+    pars.startstate(6) = pars.DIC_d_start ;
+    pars.startstate(7) =
+    pars.startstate(8) =
+    pars.startstate(9) =
+    pars.startstate(10) = 
+    pars.startstate(11) = 
+    pars.startstate(12) =
+    pars.startstate(13) = 
+    pars.startstate(14) = 
+    pars.startstate(15) =
+    pars.startstate(16) = 
+    pars.startstate(17) =
+    pars.startstate(18) = 
+    pars.startstate(19) = 
+    pars.startstate(20) = 
+    pars.startstate(21) =
+    pars.startstate(22) =
+    pars.startstate(23) =
+    pars.startstate(24) =
+    pars.startstate(25) =
+    pars.startstate(26) =
+    pars.startstate(27) =
+    pars.startstate(28) =
+    pars.startstate(29) =
+    pars.startstate(30) =
+    pars.startstate(31) =
+    pars.startstate(32) =
+    pars.startstate(33) =
+    pars.startstate(34) =
+    pars.startstate(35) =
+    pars.startstate(36) =
+    pars.startstate(37) =
+    pars.startstate(38) =
+    pars.startstate(39) =
+    pars.startstate(40) =
+    pars.startstate(41) =
+    pars.startstate(42) =
+    pars.startstate(43) =
+    pars.startstate(44) =
+    pars.startstate(45) =
+    pars.startstate(46) =
+    pars.startstate(47) =
+    pars.startstate(48) =
+    pars.startstate(49) =
+    pars.startstate(50) =
+    pars.startstate(51) =
+    pars.startstate(52) =
+    pars.startstate(53) =
+    pars.startstate(54) =
+    pars.startstate(55) =
+    pars.startstate(56) =
+    pars.startstate(57) =
+    pars.startstate(58) =
+    
+    
     %%%% note model start time
     tic
 
