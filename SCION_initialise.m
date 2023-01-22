@@ -51,9 +51,6 @@ function run = SCION_initialise(runcontrol)
     global Ctune
     global PYRtune
     global GYPtune
-    global Atune
-    global Otune
-    global Stune
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Check for sensitivity analysis   %%%%%%%%%%%%%%%%
@@ -76,7 +73,6 @@ function run = SCION_initialise(runcontrol)
         tic
     end
 
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Flux values at present   %%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -84,82 +80,188 @@ function run = SCION_initialise(runcontrol)
     %%%% reductant input
     pars.k_reductant_input = 0.4e12 ;  %%%% schopf and klein 1992
     
+    %%%%%% water reservoir sizes in m3 (m=margins, s=surface, h= hi-lat, d=deep)
+    pars.vol_p  = 2.6e15 ;  %%%% approx volume of all shelves and slope to depth 100m, area pecentage 5%
+    pars.vol_di = 5.4e15 ;  %%%% approx volume of all shelves and slope in depth 100-1000m, area pecentage 5%
+    pars.vol_s  = 2.75e16 ; %%%% approx volume of suface water to depth 100m, area pecentage 76.5%
+    pars.vol_h  = 1.22e16 ; %%%% approx volume of hi-lat to depth 250m, area pecentage 13.5%
+    pars.vol_d  = 1.35e18 ;
+    pars.vol_ocean = pars.vol_p + pars.vol_di + pars.vol_s + pars.vol_h + pars.vol_d;
+
+    %%%% mixing coefficient (Sv)
+    pars.mixcoeff_dip = 30.28;
+    pars.mixcoeff_ds  = 46.33;
+    pars.mixcoeff_dh  = 54.9;
+
+    %%%%%% initial inorganic carbon reservoirs in moles C
+    pars.CO2_a_0  = 5e16 ;
+    pars.DIC_p_0  = 5.2e15 ;
+    pars.DIC_di_0 = 1.08e16 ;
+    pars.DIC_s_0  = 5.37e16 ;
+    pars.DIC_h_0  = 2.71e16 ;
+    pars.DIC_d_0  = 3e18 ;
+    pars.ALK_p_0  = 5.2e15 ;
+    pars.ALK_di_0 = 1.08e16 ;
+    pars.ALK_s_0  = 5.37e16 ;
+    pars.ALK_h_0  = 2.71e16 ;
+    pars.ALK_d_0  = 3e18 ;
+    %%%%%% initial C isotope composition
+    pars.d13c_atm_0    = -7 ;
+    pars.d13c_DIC_p_0  = 0.1 ;
+    pars.d13c_DIC_di_0 = 0.1 ;
+    pars.d13c_DIC_s_0  = 0.1 ;
+    pars.d13c_DIC_h_0  = 0.1 ;
+    pars.d13c_DIC_d_0  = 0.1 ; 
+   %%%%%% initial POC reservoirs in moles C
+    pars.POC_p_0  = 630e12 ;
+    pars.POC_di_0 = 250e12 ;
+    pars.POC_s_0  = 2329e12 ;
+    pars.POC_h_0  = 1084e12 ;
+    pars.POC_d_0  = 56000e12 ;
+    %%%%%% initial dissolved phosphate in moles
+    pars.DP_p_0  = 1.82e12 ;
+    pars.DP_di_0 = 7.56e12 ;
+    pars.DP_s_0  = 0.55e12 ;
+    pars.DP_h_0  = 16.27e12 ;
+    pars.DP_d_0  = 2970e12 ;
+    %%%%%% initial d13C of POC
+    pars.d13c_POC_p_0  = -26;
+    pars.d13c_POC_di_0 = -26;
+    pars.d13c_POC_s_0  = -26 ;
+    pars.d13c_POC_h_0  = -26 ;
+    pars.d13c_POC_d_0  = -26 ;
+    %%%%%% initial amount of O2 in moles C
+    pars.O2_a_0  = 3.7e19 ;
+    pars.O2_p_0  = 6.705e14 ;
+    pars.O2_di_0 = 8.964e14 ;
+    pars.O2_s_0  = 9.139e15 ;
+    pars.O2_h_0  = 4.02e15 ;
+    pars.O2_d_0  = 1.823e17 ;
+    %%%%%% initial amount of FeIII in moles
+    pars.FeIII_p_0  = 1.56e9 ;
+    pars.FeIII_di_0 = 3.24e9 ;
+    pars.FeIII_s_0  = 9.625e9 ;
+    pars.FeIII_h_0  = 3.66e9 ;
+    pars.FeIII_d_0  = 810e9 ;
+    %%%%%% initial amount of sulfate in moles
+    pars.SO4_p_0  = 7.28e16;
+    pars.SO4_di_0 = 1.512e17;
+    pars.SO4_s_0  = 7.7e17;
+    pars.SO4_h_0  = 3.416e17;
+    pars.SO4_d_0  = 3.78e19;
+    %%%%%% initial amount of FeII in moles
+    pars.FeII_p_0  = 0;
+    pars.FeII_di_0 = 0;
+    pars.FeII_s_0  = 0;
+    pars.FeII_h_0  = 0;
+    pars.FeII_d_0  = 0;
+    %%%%%% initial amount of H2S in moles
+    pars.H2S_p_0  = 0;
+    pars.H2S_di_0 = 0;
+    pars.H2S_s_0  = 0;
+    pars.H2S_h_0  = 0;
+    pars.H2S_d_0  = 0; 
+    
+    %%%%%% initial size of land S reservoirs in moles
+    pars.GYP_0 = 9.375e19;
+    pars.PYR_0 = 1.875e20;
+   
     %%%% org C cycle
     pars.k_locb = 2.5e12 ;
-    pars.k_mocb = 2.5e12 ;
-    % pars.k_locb = 4.5e12 ;
-    % pars.k_mocb = 4.5e12 ;
+    pars.k_mocb = 2.5e12 ; % 7e12 in MBOX frontend
     pars.k_ocdeg = 1.25e12 ;
+    %%%% fluxes calculated for steady state
+    pars.k_oxidw = pars.k_mocb + pars.k_locb - pars.k_ocdeg - pars.k_reductant_input ;
 
     %%%% carb C cycle
     pars.k_ccdeg = 12e12 ;
-    pars.k_carbw = 8e12 ;
-    pars.k_sfw = 1.75e12 ;
-    pars.k_mccb = pars.k_carbw + pars.k_ccdeg - pars.k_sfw ;
-    pars.k_silw = pars.k_mccb - pars.k_carbw ;
+    pars.k_carbw = 8e12 ; % 12e12 in MBOX frontend
+%     pars.k_sfw = 1.75e12 ; %%% delete?
+    pars.k_mccb = pars.k_carbw + pars.k_ccdeg - pars.k_sfw ; % mass balance minus sfw
+    pars.k_silw = pars.k_mccb - pars.k_carbw ; % used in line 703, P weathering
     pars.basfrac = 0.3 ;
     pars.k_granw = pars.k_silw * (1-pars.basfrac) ;
     pars.k_basw = pars.k_silw * pars.basfrac ;
 
     %%%% S cycle
-    pars.k_mpsb = 0.7e12 ;
-    pars.k_mgsb = 1e12 ;
-    pars.k_pyrw = 7e11 ;
-    pars.k_gypw = 1e12 ;
-    pars.k_pyrdeg = 0 ; 
-    pars.k_gypdeg = 0 ;
+%     pars.k_mpsb = 0.7e12 ; % stop
+    pars.k_mgsb = 1.25e12 ;
+    pars.k_pyrw = 1.85e12 ;
+    pars.k_gypw = 1.25e12 ;
+    pars.k_pyrdeg = 0 ; % need a new value
+    pars.k_gypdeg = 0 ; % need a new value
     
     %%%% P cycle
     pars.k_capb = 2e10 ;
     pars.k_fepb = 1e10 ;
     pars.k_mopb = 1e10 ;
-    pars.k_phosw = 4.25e10 ;
+    pars.k_phosw = 4.25e10 ; % pars.k_phosw = 0.0967e12;
     pars.k_landfrac = 0.0588 ;
-    %%%% N cycle
-    pars.k_nfix = 8.67e12 ;
-    pars.k_denit = 4.3e12 ;
+    
+%     %%%% N cycle
+%     pars.k_nfix = 8.67e12 ;
+%     pars.k_denit = 4.3e12 ;
+%     %%%% Sr cycle
+%     pars.k_Sr_sedw = 17e9 ;
+%     pars.k_Sr_mantle = 7.3e9 ;
+%     pars.k_Sr_silw = 13e9 ;
+%     pars.k_Sr_granw = pars.k_Sr_silw * (1 - pars.basfrac) ;
+%     pars.k_Sr_basw = pars.k_Sr_silw * pars.basfrac ;
+%     pars.total_Sr_removal = pars.k_Sr_granw + pars.k_Sr_basw + pars.k_Sr_sedw + pars.k_Sr_mantle ;
+%     pars.k_Sr_sfw = pars.total_Sr_removal * ( pars.k_sfw / (pars.k_sfw + pars.k_mccb) ) ;
+%     pars.k_Sr_sedb = pars.total_Sr_removal * ( pars.k_mccb / (pars.k_sfw + pars.k_mccb) ) ;
+%     pars.k_Sr_metam = 13e9 ;
 
-    %%%% fluxes calculated for steady state
-    pars.k_oxidw = pars.k_mocb + pars.k_locb - pars.k_ocdeg - pars.k_reductant_input ;
-
-    %%%% Sr cycle
-    pars.k_Sr_sedw = 17e9 ;
-    pars.k_Sr_mantle = 7.3e9 ;
-    pars.k_Sr_silw = 13e9 ;
-    pars.k_Sr_granw = pars.k_Sr_silw * (1 - pars.basfrac) ;
-    pars.k_Sr_basw = pars.k_Sr_silw * pars.basfrac ;
-    pars.total_Sr_removal = pars.k_Sr_granw + pars.k_Sr_basw + pars.k_Sr_sedw + pars.k_Sr_mantle ;
-    pars.k_Sr_sfw = pars.total_Sr_removal * ( pars.k_sfw / (pars.k_sfw + pars.k_mccb) ) ;
-    pars.k_Sr_sedb = pars.total_Sr_removal * ( pars.k_mccb / (pars.k_sfw + pars.k_mccb) ) ;
-    pars.k_Sr_metam = 13e9 ;
-
-    %%%% others
-    pars.k_oxfrac = 0.9975 ;
-    Pconc0 = 2.2 ;
-    Nconc0 = 30.9 ;
-    pars.newp0 = 117 * min(Nconc0/16,Pconc0) ;
+%     %%%% others
+%     pars.k_oxfrac = 0.9975 ;
+%     Pconc0 = 2.2 ;
+%     Nconc0 = 30.9 ;
+%     pars.newp0 = 117 * min(Nconc0/16,Pconc0) ;
     %COPSE constant for calculating pO2 from normalised O2
     pars.copsek16 = 3.762 ;
-    % oxidative weathering dependency on O2 concentration
-    pars.a = 0.5 ;
-    % marine organic carbon burial dependency on new production
-    pars.b = 2 ; 
+%     % oxidative weathering dependency on O2 concentration
+%     pars.a = 0.5 ;
+%     % marine organic carbon burial dependency on new production
+%     pars.b = 2 ; 
     %%fire feedback
-    pars.kfire= 3 ;
+    pars.kfire = 3 ;
 
-    %reservoir present day sizes (mol)
-    pars.P0 = 3.1*10^15 ;
-    pars.O0 = 3.7*10^19 ;
-    pars.A0 = 3.193*10^18 ;
-    pars.G0 = 1.25*10^21 ;
-    pars.C0 = 5*10^21 ;
-    pars.PYR0 = 1.8*10^20 ;
-    pars.GYP0 = 2*10^20 ;
-    pars.S0 = 4*10^19 ;
+    %%%%%% Redfeild ratio
+    pars.Red_C_P = 106;
+    pars.Red_C_N = 106 / 16;
+    pars.Red_C_O = 106 / 138;
+    pars.Red_C_Fe = 106 * 2000;
+    pars.Red_Fe_P = pars.Red_C_P / pars.Red_C_Fe;
+    %%%%%% Monod constant; mol/m3
+    pars.KP = 0.1e-3;
+    pars.KFe = 0.1e-6;
+    pars.KmO2 = 13e-3;
+    pars.KmFeIII = 10;
+    pars.KmSO4 = 0.5;
+    %%%%%% reaction rate constant; m3 mol-1 yr-1
+    pars.kpy = 0.3708/1e3 * 24 * 365.25;
+    pars.kironO = 1.4e4;
+    pars.ksulfO = 1e2;
+    pars.kSironR = 8;
+    pars.kSide = 4e3;
+    %%%%%% Ksp
+    pars.Kspside = 10^(-8.4) * 1e6;%%%mol2 m-6
+    pars.KspFeSaq = 10^(-5.08) * 1e3;%%%mol m-3
+    pars.STFeSaq = 10^(-5.7) * 1e3;%%%mol m-3
+    %%%%%% dust Fe fluxes,mol yr-1
+    pars.FeIIIa_s = 1.443e9; %%%
+    pars.FeIIIa_h = 0;  %%%% 
+    %%%%%% riverine solid FeIII fluxes, mol yr-1
+    pars.sFeIII_p = 190e9;
+    pars.sFeIII_di = 70e9;
+    pars.sFeIII_d =  50e9;
+    %%%%% reservoir present day sizes (mol)
+    pars.G0 = 1.25 * 10^21 ;
+    pars.C0 = 5 * 10^21 ;
+    pars.PYR0 = 1.8 * 10^20 ;
+    pars.GYP0 = 2 * 10^20 ;
     pars.CAL0 = 1.397e19 ;
-    pars.N0 = 4.35e16 ;
-    pars.OSr0 = 1.2e17 ; %%% francois and walker 1992
-    pars.SSr0 = 5e18 ;
+
 
     %%%% finished loading params
     if sensanal == 0 
@@ -167,7 +269,6 @@ function run = SCION_initialise(runcontrol)
         endtime = toc ;
         fprintf('time (s): %d \n', endtime )
     end
-
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Load Forcings   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -214,8 +315,7 @@ function run = SCION_initialise(runcontrol)
         endtime = toc ;
         fprintf('time (s): %d \n', endtime )
     end
-    
-    
+     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Generate sensitivity randoms   %%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -230,7 +330,6 @@ function run = SCION_initialise(runcontrol)
         sensparams.randminusplus6 = 2*(0.5 - rand) ;
         sensparams.randminusplus7 = 2*(0.5 - rand) ;    
     end
-
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Initialise solver   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -328,7 +427,6 @@ function run = SCION_initialise(runcontrol)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
     %%%% model start state
     pars.startstate(1) = pars.CO2_a_start ;
     pars.startstate(2) = pars.DIC_p_start ;
@@ -336,67 +434,238 @@ function run = SCION_initialise(runcontrol)
     pars.startstate(4) = pars.DIC_s_start ;
     pars.startstate(5) = pars.DIC_h_start ;
     pars.startstate(6) = pars.DIC_d_start ;
-    pars.startstate(7) =
-    pars.startstate(8) =
-    pars.startstate(9) =
-    pars.startstate(10) = 
-    pars.startstate(11) = 
-    pars.startstate(12) =
-    pars.startstate(13) = 
-    pars.startstate(14) = 
-    pars.startstate(15) =
-    pars.startstate(16) = 
-    pars.startstate(17) =
-    pars.startstate(18) = 
-    pars.startstate(19) = 
-    pars.startstate(20) = 
-    pars.startstate(21) =
-    pars.startstate(22) =
-    pars.startstate(23) =
-    pars.startstate(24) =
-    pars.startstate(25) =
-    pars.startstate(26) =
-    pars.startstate(27) =
-    pars.startstate(28) =
-    pars.startstate(29) =
-    pars.startstate(30) =
-    pars.startstate(31) =
-    pars.startstate(32) =
-    pars.startstate(33) =
-    pars.startstate(34) =
-    pars.startstate(35) =
-    pars.startstate(36) =
-    pars.startstate(37) =
-    pars.startstate(38) =
-    pars.startstate(39) =
-    pars.startstate(40) =
-    pars.startstate(41) =
-    pars.startstate(42) =
-    pars.startstate(43) =
-    pars.startstate(44) =
-    pars.startstate(45) =
-    pars.startstate(46) =
-    pars.startstate(47) =
-    pars.startstate(48) =
-    pars.startstate(49) =
-    pars.startstate(50) =
-    pars.startstate(51) =
-    pars.startstate(52) =
-    pars.startstate(53) =
-    pars.startstate(54) =
-    pars.startstate(55) =
-    pars.startstate(56) =
-    pars.startstate(57) =
-    pars.startstate(58) =
+    pars.startstate(7) = pars.ALK_p_start ;
+    pars.startstate(8) = pars.ALK_di_start ;
+    pars.startstate(9) = pars.ALK_s_start ;
+    pars.startstate(10) = pars.ALK_h_start ;
+    pars.startstate(11) = pars.ALK_d_start ;
+    pars.startstate(12) = pars.d13c_atm_start * pars.CO2_a_start;
+    pars.startstate(13) = pars.d13c_DIC_p_start * pars.DIC_p_start;
+    pars.startstate(14) = pars.d13c_DIC_di_start * pars.DIC_di_start;
+    pars.startstate(15) = pars.d13c_DIC_s_start * pars.DIC_s_start;
+    pars.startstate(16) = pars.d13c_DIC_h_start * pars.DIC_h_start ;
+    pars.startstate(17) = pars.d13c_DIC_d_start * pars.DIC_d_start;         
+    pars.startstate(18) = pars.POC_p_start ;
+    pars.startstate(19) = pars.POC_di_start ;
+    pars.startstate(20) = pars.POC_s_start ;
+    pars.startstate(21) = pars.POC_h_start ;
+    pars.startstate(22) = pars.POC_d_start ;
+    pars.startstate(23) = pars.DP_p_start ;
+    pars.startstate(24) = pars.DP_di_start ;
+    pars.startstate(25) = pars.DP_s_start ;
+    pars.startstate(26) = pars.DP_h_start ;
+    pars.startstate(27) = pars.DP_d_start ;
+    pars.startstate(28) = pars.d13c_POC_p_start * pars.POC_p_start;
+    pars.startstate(29) = pars.d13c_POC_di_start * pars.POC_di_start;
+    pars.startstate(30) = pars.d13c_POC_s_start * pars.POC_s_start;
+    pars.startstate(31) = pars.d13c_POC_h_start * pars.POC_h_start;
+    pars.startstate(32) = pars.d13c_POC_d_start * pars.POC_d_start;
+    pars.startstate(33) = pars.O2_a_start ;
+    pars.startstate(34) = pars.O2_p_start ;
+    pars.startstate(35) = pars.O2_di_start ;
+    pars.startstate(36) = pars.O2_s_start ;
+    pars.startstate(37) = pars.O2_h_start ;
+    pars.startstate(38) = pars.O2_d_start ;
+    pars.startstate(39) = pars.FeIII_p_start ;
+    pars.startstate(40) = pars.FeIII_di_start ;
+    pars.startstate(41) = pars.FeIII_s_start ;
+    pars.startstate(42) = pars.FeIII_h_start ;
+    pars.startstate(43) = pars.FeIII_d_start ;
+    pars.startstate(44) = pars.SO4_p_start ;
+    pars.startstate(45) = pars.SO4_di_start ;
+    pars.startstate(46) = pars.SO4_s_start ;
+    pars.startstate(47) = pars.SO4_h_start ;
+    pars.startstate(48) = pars.SO4_d_start ;
+    pars.startstate(49) = pars.FeII_p_start ;
+    pars.startstate(50) = pars.FeII_di_start ;
+    pars.startstate(51) = pars.FeII_s_start ;
+    pars.startstate(52) = pars.FeII_h_start ;
+    pars.startstate(53) = pars.FeII_d_start ;
+    pars.startstate(54) = pars.H2S_p_start ;
+    pars.startstate(55) = pars.H2S_di_start ;
+    pars.startstate(56) = pars.H2S_s_start ;
+    pars.startstate(57) = pars.H2S_h_start ;
+    pars.startstate(58) = pars.H2S_d_start ;
+    pars.startstate(59) = pars.d34s_SO4_p_start * pars.SO4_p_start;
+    pars.startstate(60) = pars.d34s_SO4_di_start * pars.SO4_di_start;
+    pars.startstate(61) = pars.d34s_SO4_s_start * pars.SO4_s_start;
+    pars.startstate(62) = pars.d34s_SO4_h_start * pars.SO4_h_start;
+    pars.startstate(63) = pars.d34s_SO4_d_start * pars.SO4_d_start;
+    pars.startstate(64) = pars.G_start ;
+    pars.startstate(65) = pars.C_start ;
+    pars.startstate(66) = pars.PYR_start ;
+    pars.startstate(67) = pars.GYP_start ;
+    pars.startstate(68) = pars.d13c_G_start ;
+    pars.startstate(69) = pars.d13c_C_start ;
+    pars.startstate(70) = pars.d34s_PYR_start ;
+    pars.startstate(71) = pars.d34s_GYP_start ;
     
-    
+    %%% Vectors to store the results
+
+    statevector =1:35
+
+    state.pO2_af = statevector;
+    state.Atmospheric_CO2_ppmf = statevector;
+    state.DIC_conc_pf = statevector;
+    state.DIC_conc_dif = statevector;
+    state.DIC_conc_sf = statevector;
+    state.DIC_conc_hf = statevector;
+    state.DIC_conc_df = statevector;
+    state.ALK_conc_pf = statevector;
+    state.ALK_conc_dif = statevector;
+    state.ALK_conc_sf = statevector;
+    state.ALK_conc_hf = statevector;
+    state.ALK_conc_df = statevector;
+    state.pH_pf = statevector;
+    state.pH_dif = statevector;
+    state.pH_sf = statevector;
+    state.pH_hf = statevector;
+    state.pH_df = statevector;
+    state.T_sf = statevector;
+    state.T_hf = statevector;
+    state.T_df = statevector;
+    state.T_contf = statevector;
+    state.GASTf = statevector;
+    state.ccdegf = statevector;
+    state.baswf = statevector;
+    state.granwf = statevector;
+    state.silwf = statevector;
+    state.carbwf = statevector;
+    state.mccb_pf = statevector;
+    state.mccb_dif = statevector;
+    state.mccb_df = statevector;
+    state.POC_pf = statevector;
+    state.POC_dif = statevector;
+    state.POC_sf = statevector;
+    state.POC_hf = statevector;
+    state.POC_df = statevector;
+    state.DP_conc_pf = statevector;
+    state.DP_conc_dif = statevector;
+    state.DP_conc_sf = statevector;
+    state.DP_conc_hf = statevector;
+    state.DP_conc_df = statevector;
+    state.O2_conc_pf = statevector;
+    state.O2_conc_dif = statevector;
+    state.O2_conc_sf = statevector;
+    state.O2_conc_hf = statevector;
+    state.O2_conc_df = statevector;
+    state.FeIII_conc_pf = statevector;
+    state.FeIII_conc_dif = statevector;
+    state.FeIII_conc_sf = statevector;
+    state.FeIII_conc_hf = statevector;
+    state.FeIII_conc_df = statevector;
+    state.SO4_conc_pf = statevector;
+    state.SO4_conc_dif = statevector;
+    state.SO4_conc_sf = statevector;
+    state.SO4_conc_hf = statevector;
+    state.SO4_conc_df = statevector;
+    state.FeII_conc_pf = statevector;
+    state.FeII_conc_dif = statevector;
+    state.FeII_conc_sf = statevector;
+    state.FeII_conc_hf = statevector;
+    state.FeII_conc_df = statevector;
+    state.H2S_conc_pf = statevector;
+    state.H2S_conc_dif = statevector;
+    state.H2S_conc_sf = statevector;
+    state.H2S_conc_hf = statevector;
+    state.H2S_conc_df = statevector;
+    state.O2_conc_pf = statevector;
+    state.O2_conc_dif = statevector;
+    state.O2_conc_sf = statevector;
+    state.O2_conc_hf = statevector;
+    state.O2_conc_df = statevector;
+    state.FeIIIwf = statevector;
+    state.FeIIIscavenging_pf = statevector;
+    state.FeIIIscavenging_dif = statevector;
+    state.FeIIIscavenging_sf = statevector;
+    state.FeIIIscavenging_hf = statevector;
+    state.FeIIIscavenging_df = statevector;
+    state.pyrwf = statevector;
+    state.gypwf = statevector;
+    state.mgsbf = statevector;
+    state.pyF_pf = statevector;
+    state.pyF_dif = statevector;
+    state.pyF_sf = statevector;
+    state.pyF_hf = statevector;
+    state.pyF_df = statevector;
+    state.ironO_pf = statevector;
+    state.ironO_dif = statevector;
+    state.ironO_sf = statevector;
+    state.ironO_hf = statevector;
+    state.ironO_df = statevector;
+    state.SironR_pf = statevector;
+    state.SironR_dif = statevector;
+    state.SironR_sf = statevector;
+    state.SironR_hf = statevector;
+    state.SironR_df = statevector;
+    state.SideP_pf = statevector;
+    state.SideP_dif = statevector;
+    state.SideP_sf = statevector;
+    state.SideP_hf = statevector;
+    state.SideP_df = statevector;
+    state.pripr_pf = statevector;
+    state.pripr_sf = statevector;
+    state.pripr_hf = statevector;
+    state.remin_pf = statevector;
+    state.remin_dif = statevector;
+    state.remin_sf = statevector;
+    state.remin_hf = statevector;
+    state.remin_df = statevector;
+    state.mocb_pf = statevector;
+    state.mocb_dif = statevector;
+    state.mocb_df = statevector;
+    state.phoswf = statevector;
+    state.sulfatebentic_pf = statevector;
+    state.mgsbf = statevector;
+    state.sulfR_pf = statevector;
+    state.sulfO_pf = statevector;
+    state.SironR_pf = statevector;
+    state.pyF_pf = statevector;
+    state.pyrwf = statevector;
+    state.gypwf = statevector;
+    state.SO4_lf = statevector;
+    state.mocb_p_FeIIIf = statevector;
+    state.mocb_di_FeIIIf = statevector;
+    state.mocb_d_FeIIIf = statevector;
+    state.ocbother_pf = statevector;
+    state.ocbother_dif = statevector;
+    state.ocbother_df = statevector;
+    state.water_sediment_pf = statevector;
+    state.water_sediment_dif = statevector;
+    state.water_sediment_df = statevector;
+    state.BEf_p = statevector;
+    state.BEf_di = statevector;
+    state.BEf_d = statevector;
+    state.AR_pf = statevector;
+    state.AR_dif = statevector;
+    state.AR_sf = statevector;
+    state.AR_hf = statevector;
+    state.AR_df = statevector;
+    state.ironR_pf = statevector;
+    state.ironR_dif = statevector;
+    state.ironR_sf = statevector;
+    state.ironR_hf = statevector;
+    state.ironR_df = statevector;
+    state.sulfR_pf = statevector;
+    state.sulfR_dif = statevector;
+    state.sulfR_sf = statevector;
+    state.sulfR_hf = statevector;
+    state.sulfR_df = statevector;
+    state.oxygenbentic_pf = statevector;
+    state.oxygenbentic_dif = statevector;
+    state.oxygenbentic_df = statevector;
+    state.sulfatebentic_pf = statevector;
+    state.sulfatebentic_dif = statevector;
+    state.sulfatebentic_df = statevector;
+    state.methanogenesis_pf = statevector;
+    state.methanogenesis_dif = statevector;
+    state.methanogenesis_df = statevector;
+
     %%%% note model start time
     tic
 
     %%%%%%% run the system 
     [rawoutput.T,rawoutput.Y] = ode15s(@SCION_equations,[pars.whenstart pars.whenend],pars.startstate,options);
-
-
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Postprocessing   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -442,7 +711,6 @@ function run = SCION_initialise(runcontrol)
         fprintf('time (s): %d \n', endtime )
     end
 
-
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Plotting   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -455,8 +723,5 @@ function run = SCION_initialise(runcontrol)
             end
             SCION_plot_fluxes
         end
-    end
-
-
-    
+    end   
 end
