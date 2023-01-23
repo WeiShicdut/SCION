@@ -177,7 +177,7 @@ function run = SCION_initialise(runcontrol)
     pars.k_ccdeg = 12e12 ;
     pars.k_carbw = 8e12 ; % 12e12 in MBOX frontend
 %     pars.k_sfw = 1.75e12 ; %%% delete?
-    pars.k_mccb = pars.k_carbw + pars.k_ccdeg - pars.k_sfw ; % mass balance minus sfw
+    pars.k_mccb = pars.k_carbw + pars.k_ccdeg ; % mass balance minus sfw
     pars.k_silw = pars.k_mccb - pars.k_carbw ; % used in line 703, P weathering
     pars.basfrac = 0.3 ;
     pars.k_granw = pars.k_silw * (1-pars.basfrac) ;
@@ -378,12 +378,12 @@ function run = SCION_initialise(runcontrol)
     stepnumber = 1 ;
 
     %%%%%%% set starting reservoir sizes 
-    pars.pstart = pars.P0;
+%     pars.pstart = pars.P0;
     pars.tempstart = 288;
     pars.CAL_start = pars.CAL0;
-    pars.N_start = pars.N0;
-    pars.OSr_start = pars.OSr0;
-    pars.SSr_start = pars.SSr0;
+%     pars.N_start = pars.N0;
+%     pars.OSr_start = pars.OSr0;
+%     pars.SSr_start = pars.SSr0;
     pars.delta_A_start = 0 ;
     pars.delta_S_start = 35 ;
     pars.delta_G_start = -27 ;
@@ -411,19 +411,19 @@ function run = SCION_initialise(runcontrol)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %%%%% if no tuning use previously tuned values
-    if isempty(Gtune) == 1
-
-        outputs = [ 0.55 1 1.2 1 0.1 0.05 3 ] ;
-        
-        pars.gstart = pars.G0 * outputs(1) ;
-        pars.cstart = pars.C0 * outputs(2) ;
-        pars.pyrstart = pars.PYR0 * outputs(3) ;
-        pars.gypstart = pars.GYP0 * outputs(4) ; 
-        pars.ostart = pars.O0 * outputs(5)  ;
-        pars.sstart = pars.S0 * outputs(6) ;
-        pars.astart = pars.A0 * outputs(7) ;
-
-    end
+%     if isempty(Gtune) == 1
+% 
+%         outputs = [ 0.55 1 1.2 1 0.1 0.05 3 ] ;
+%         
+%         pars.gstart = pars.G0 * outputs(1) ;
+%         pars.cstart = pars.C0 * outputs(2) ;
+%         pars.pyrstart = pars.PYR0 * outputs(3) ;
+%         pars.gypstart = pars.GYP0 * outputs(4) ; 
+%         pars.ostart = pars.O0 * outputs(5)  ;
+%         pars.sstart = pars.S0 * outputs(6) ;
+%         pars.astart = pars.A0 * outputs(7) ;
+% 
+%     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
