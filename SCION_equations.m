@@ -169,9 +169,6 @@ capdelC_marine = 35 ;
 %%%% SHORELINE
 SHORELINE = interp1qr(forcings.shoreline_time',forcings.shoreline_relative',t_geol) ;
 
-%%%% bioturbation forcing
-f_biot = interp1qr([-1000 -525 -520 0]',[0 0 1 1]',t_geol);
-% CB = interp1qr([0 1]',[1.2 1]',f_biot) ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Sensitivity analysis  %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -562,13 +559,9 @@ Mix_H2S_d_h  = mixcoeff_dh_m3_yr * (H2S_conc_d  - H2S_conc_h) ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% Global average surface temperature
-Climate_Sensitivity = 3 ;
-t_geol = -(0-0)/1e6 ;
-GAST = 288 + Climate_Sensitivity * ( log( Atmospheric_CO2_ppm / 280 ) / log(2) )  - 7.4*(t_geol/-570)  ;
 T_s = 298 + (GAST - 288) * 0.66  ;  
 T_h = max( 275.5 + (GAST - 288) , 271 ) ;
 T_d = max( 275.5 + (GAST - 288) , 271 ) ;
-T_cont = GAST ;
 T_p = T_s ;
 T_di = T_s ;
 
@@ -639,10 +632,7 @@ AirSea_ha = 5e16 * 0.135 * 0.1 * ( pCO2_h ) ;
 %%%%%%%%%%%%%%%%%   Continental fluxes  %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-%%%%%% basalt and granite temp dependency - direct and runoff
-% f_T_bas =  exp(0.0608  *(T_cont-288)) * ( (1 + 0.038 * (T_cont - 288))^0.65 ) ;
-% f_T_gran =  exp(0.0724 *(T_cont-288)) * ( (1 + 0.038 * (T_cont - 288))^0.65 ) ;
-% g_T = 1 + 0.087 * (T_cont - 288) ;
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%55%%%% effect of temp on VEG %%%% fixed %%%%%%%%%%%%%%%
