@@ -119,9 +119,9 @@ RCO2 = ( CO2_a / pars.CO2_a_0 )^2 ;
 CO2ppm = RCO2 * 280 ;
 CO2atm = RCO2 * (280e-6) ;
 %%%% pCO2 in PAL
-pCO2_a = ( CO2_a / pars.CO2_a_0 ) ;
+pCO2_a = CO2_a / pars.CO2_a_0 ;
 %%%% pO2 in PAL
-pO2_a = ( O2_a / pars.O2_a_0 ) ;
+pO2_a = O2_a / pars.O2_a_0 ;
 
 %%%%% mixing ratio of oxygen (not proportional to O reservoir)
 mrO2 = ( O2_a / pars.O2_a_0 ) / (( O2_a / pars.O2_a_0 ) + pars.copsek16 ) ;
@@ -141,6 +141,8 @@ D_combined_max = interp1qr( forcings.D_force_x' , forcings.D_force_max , t_geol)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%  Choose forcing functions  %%%%%%%%%%%%%%%%%%%%%%%%%
+%%%% uplift %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+UPLIFT = 1 ;
 %%%% degassing or metamorphism %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % DEGASS = D_sbz_rift ;
 % DEGASS = D_merdith ;
@@ -150,13 +152,16 @@ W = W_reloaded ;
 %%%% Plant evolution %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 EVO = E_reloaded ;
 %%%% Plant stoichiometry, C/P on the land %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-CPLAND = CP_reloaded ;
+CPLAND = 1 ;
+% CPLAND = CP_reloaded ;
 %%%% pelagic calcification %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 Bforcing = interp1qr([-1000 -150 -100 0]',[0.75 0.75 1 1]',t_geol) ;
 %%%% basalt area %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 BAS_AREA = GR_BA ;
 %%%% granite area %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 GRAN_AREA = newGA ;
+%%%% organic area %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ORG_AREA = 1 ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 PREPLANT = 1/4 ;
 
@@ -644,7 +649,7 @@ P_half = 183.6 ;
 P_min = 10 ;
 V_co2 = (P_atm - P_min) / (P_half + P_atm - P_min) ;
 %%%% effect of O2 on VEG
-V_o2 = 1.5 - 0.5*(O/pars.O0) ; 
+V_o2 = 1.5 - 0.5 *(O2_a / pars.O2_a_0) ; 
 %%%% full VEG limitation %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 V_npp = 2 * EVO * V_T * V_o2 * V_co2 ;
 %%%% COPSE reloaded fire feedback
@@ -675,7 +680,7 @@ carbw = carbw_spatial * f_biota ;
 carbw_relative = (carbw / pars.k_carbw);
 
 %%%% oxidative weathering %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-oxidw = pars.k_oxidw * carbw_relative * UPLIFT^silconst * ORG_AREA * sigmf((O2_a/pars.O2_a_0),[5,-7]) * ((O2_a/pars.O2_a_0)^0.5) * (G/pars.G0);
+oxidw = pars.k_oxidw * carbw_relative * UPLIFT^pars.silconst * ORG_AREA * sigmf((O2_a/pars.O2_a_0),[5,-7]) * ((O2_a/pars.O2_a_0)^0.5) * (G/pars.G0);
 
 %%%% FeIII weathering fluxes mol yr-1 %%%%%%%%%%%%%%%%%%%%%%%%%
 FeIIIw = pars.k_FeIIIw * silw /(pars.k_basw + pars.k_granw);
@@ -684,9 +689,9 @@ FeIIIw = pars.k_FeIIIw * silw /(pars.k_basw + pars.k_granw);
 pyrw = pars.k_pyrw * carbw_relative * 32 / (6e21) * PYR * sigmf(log10(O2_a/pars.O2_a_0),[5 -7]) * (O2_a/pars.O2_a_0)^0.5;
 gypw = pars.k_gypw * carbw_relative * 32 / (3e21) * GYP;
 
-%%%%% seafloor weathering, revised following Brady and Gislason but not directly linking to CO2
-f_T_sfw = exp(0.0608 * (Tsurf - 288)); 
-sfw = pars.k_sfw * f_T_sfw * DEGASS; %%% assume spreading rate follows degassing here
+% %%%%% seafloor weathering, revised following Brady and Gislason but not directly linking to CO2
+% f_T_sfw = exp(0.0608 * (Tsurf - 288)); 
+% sfw = pars.k_sfw * f_T_sfw * DEGASS; %%% assume spreading rate follows degassing here
 
 %%%% P weathering %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 pfrac_silw = 0.8 ;
@@ -1003,7 +1008,7 @@ dy(31) = pripr_h*(d13c_DIC_h - capdelB) - remin_h*d13c_POC_h + Tran_POC_s_h*d13c
 dy(32) = - remin_d*d13c_POC_d + Tran_POC_s_d*d13c_POC_s + Tran_POC_h_d*d13c_POC_h - Tran_POC_d_di*d13c_POC_d - water_sediment_d*d13c_POC_d ;
 
 %%%% O2_a
-dy(33) = - ocdeg/pars.Red_C_O  - oxidw/pars.Red_C_O  + locb/pars.Red_C_O - AirSeaO2_p - AirSeaO2_s - AirSeaO2_h - 2*pyritew  + Oxygenfluxtoatmos - 2*(methanogenesis_p  + methanogenesis_di + methanogenesis_d) ; 
+dy(33) = - ocdeg/pars.Red_C_O  - oxidw/pars.Red_C_O  + locb/pars.Red_C_O - AirSeaO2_p - AirSeaO2_s - AirSeaO2_h - 2*pyrw  + Oxygenfluxtoatmos - 2*(methanogenesis_p  + methanogenesis_di + methanogenesis_d) ; 
 
 %%%% O2_p
 dy(34) = oxygenbentic_p + AirSeaO2_p + Tran_O2_di_p - Tran_O2_p_s + Mix_O2_di_p  + pripr_p_O - AR_p/pars.Red_C_O - 0.25*ironO_p - 2*sulfO_p;
@@ -1081,10 +1086,10 @@ dy(57) = Tran_H2S_s_h - Tran_H2S_h_d + Mix_H2S_d_h + 0.5*sulfR_h/pars.Red_C_O - 
 dy(58) = Tran_H2S_h_d - Tran_H2S_d_di - Tran_H2S_d_s - Mix_H2S_d_s - Mix_H2S_d_h + 0.5*sulfR_d/pars.Red_C_O - 1.75*pyF_d - sulfO_d - SironR_d;
 
 %%%% d34s_SO4_p
-dy(59) = sulfatebentic_p * (d34s_SO4_p - capdelS) + (pyrw + pyrdeg) *d34s_PYR + (gypw + gypdeg)*d34s_GYP - mgsb*d34s_SO4_p + Tran_SO4_di_p*d34s_SO4_di - Tran_SO4_p_s*d34s_SO4_p + Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_p/pars.Red_C_O*(d34s_SO4_p - capdelS) + sulfO_p*(d34s_SO4_p - capdelS) + SironR_p*(d34s_SO4_p - capdelS) - 0.25*pyF_p*(d34s_SO4_p - capdelS);
+dy(59) = sulfatebentic_p*(d34s_SO4_p - capdelS) + (pyrw + pyrdeg)*d34s_PYR + (gypw + gypdeg)*d34s_GYP - mgsb*d34s_SO4_p + Tran_SO4_di_p*d34s_SO4_di - Tran_SO4_p_s*d34s_SO4_p + Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_p/pars.Red_C_O*(d34s_SO4_p - capdelS) + sulfO_p*(d34s_SO4_p - capdelS) + SironR_p*(d34s_SO4_p - capdelS) - 0.25*pyF_p*(d34s_SO4_p - capdelS);
 
 %%%% d34s_SO4_di
-dy(60) = sulfatebentic_di * (d34s_SO4_di - capdelS) + Tran_SO4_d_di*d34s_SO4_d + sulfO_di*(d34s_SO4_di - capdelS) + SironR_di*(d34s_SO4_di - capdelS) - Tran_SO4_di_p*d34s_SO4_di - Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_di/pars.Red_C_O*(d34s_SO4_p - capdelS) - 0.25*pyF_di*(d34s_SO4_p - capdelS);
+dy(60) = sulfatebentic_di*(d34s_SO4_di - capdelS) + Tran_SO4_d_di*d34s_SO4_d + sulfO_di*(d34s_SO4_di - capdelS) + SironR_di*(d34s_SO4_di - capdelS) - Tran_SO4_di_p*d34s_SO4_di - Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_di/pars.Red_C_O*(d34s_SO4_p - capdelS) - 0.25*pyF_di*(d34s_SO4_p - capdelS);
 
 %%%% d34s_SO4_s
 dy(61) = Tran_SO4_p_s*d34s_SO4_p - Tran_SO4_s_h*d34s_SO4_s + Tran_SO4_d_s*d34s_SO4_d + Mix_SO4_d_s*d34s_SO4_d - 0.5*sulfR_s/pars.Red_C_O*(d34s_SO4_s - capdelS) + sulfO_s*(d34s_SO4_s - capdelS) + SironR_s*(d34s_SO4_s - capdelS) - 0.25*pyF_s*(d34s_SO4_s - capdelS);
@@ -1099,7 +1104,7 @@ dy(63) = sulfatebentic_d * (d34s_SO4_d - capdelS) + Tran_SO4_h_d*d34s_SO4_h - Tr
 dy(64) = locb + mocb_p + mocb_di + mocb_d - oxidw - ocdeg ;
 
 %%% Buried carbnate (C)
-dy(65) = mccb_p + mccb_di + mccb_d + sfw - carbw - ccdeg ;
+dy(65) = mccb_p + mccb_di + mccb_d  - carbw - ccdeg ;
 
 %%% Buried pyrite (PYR)
 dy(66) = pyF_p + pyF_di + pyF_s + pyF_h + pyF_d - sulfatebentic_p - sulfatebentic_di - sulfatebentic_d - pyrw - pyrdeg;
@@ -1111,7 +1116,7 @@ dy(67) = mgsb - gypw - gypdeg ;
 dy(68) = locb*(d13c_atm - capdelC_land) + mocb_p*(d13c_DIC_p - capdelB) + mocb_di*(d13c_DIC_di - capdelB) + mocb_d*(d13c_DIC_d - capdelB) - oxidw*d13c_G - ocdeg*d13c_G ;
 
 %%% delta_C * C (young)
-dy(69) = mccb_p*d13c_DIC_p + mccb_di*d13c_DIC_di + mccb_d*d13c_DIC_d + sfw - carbw*d13c_C - ccdeg*d13c_C ; %%%% How to sea floor weathering
+dy(69) = mccb_p*d13c_DIC_p + mccb_di*d13c_DIC_di + mccb_d*d13c_DIC_d - carbw*d13c_C - ccdeg*d13c_C ; %%%% How to sea floor weathering
 
 %%% delta_PYR * PYR (young)
 dy(70) = pyF_p*(d34s_SO4_p - capdelS) + pyF_di*(d34s_SO4_di - capdelS) + pyF_s*(d34s_SO4_s - capdelS) + pyF_h*(d34s_SO4_h - capdelS) + pyF_d*(d34s_SO4_d - capdelS) - sulfatebentic_p*(d34s_SO4_p - capdelS) - sulfatebentic_di*(d34s_SO4_di - capdelS) - sulfatebentic_d*(d34s_SO4_d - capdelS) - pyrw*d34s_PYR - pyrdeg*d34s_PYR ;
@@ -1142,7 +1147,6 @@ if sensanal == 0
     workingstate.C(stepnumber,1) = C ;
     workingstate.PYR(stepnumber,1) = PYR ;
     workingstate.GYP(stepnumber,1) = GYP ;
-    %%%%%%% record model dy states while working
     workingstate.CO2_input(stepnumber,1) = CO2_input ;
     workingstate.d13c_CO2_input(stepnumber,1) = d13c_CO2_input ;
     workingstate.CO2_a(stepnumber,1) = CO2_a ;
@@ -1180,9 +1184,7 @@ if sensanal == 0
     workingstate.T_s(stepnumber,1) = T_s ;
     workingstate.T_h(stepnumber,1) = T_h ;
     workingstate.T_d(stepnumber,1) = T_d ;
-    workingstate.T_cont(stepnumber,1) = T_cont ;
     workingstate.GAST(stepnumber,1) = GAST ;
-    workingstate.Atmospheric_CO2_ppm(stepnumber,1) = Atmospheric_CO2_ppm ;
     workingstate.granw(stepnumber,1) = granw ;
     workingstate.basw(stepnumber,1) = basw ;
     workingstate.silw(stepnumber,1) = silw ;
@@ -1320,7 +1322,6 @@ if sensanal == 0
     workingstate.FeIIIscavenging_s(stepnumber,1) = FeIIIscavenging_s;
     workingstate.FeIIIscavenging_h(stepnumber,1) = FeIIIscavenging_h;
     workingstate.FeIIIscavenging_d(stepnumber,1) = FeIIIscavenging_d;
-    workingstate.sulfateb(stepnumber,1) = sulfateb;
     workingstate.pyF_p(stepnumber,1) = pyF_p;
     workingstate.pyF_di(stepnumber,1) = pyF_di;
     workingstate.pyF_s(stepnumber,1) = pyF_s;
@@ -1348,7 +1349,6 @@ if sensanal == 0
     workingstate.AirSeaO2_s(stepnumber,1) = AirSeaO2_s;
     workingstate.AirSeaO2_h(stepnumber,1) = AirSeaO2_h;
     workingstate.Oxygenfluxtoatmos(stepnumber,1) = Oxygenfluxtoatmos;
-    workingstate.sulfateb(stepnumber,1) = sulfateb;
     workingstate.sulfR_p(stepnumber,1) = sulfR_p;
     workingstate.sulfO_p(stepnumber,1) = sulfO_p;
     workingstate.SironR_p(stepnumber,1) = SironR_p;
@@ -1406,6 +1406,7 @@ if sensanal == 0
     workingstate.d34s_GYP(stepnumber,1) = d34s_GYP ;
     workingstate.time_myr(stepnumber,1) = t_geol ;
     workingstate.time(stepnumber,1) = t;
+    workingstate.reductant_input(stepnumber,1) = reductant_input;
 
     %%%%%%%% print time
     if pars.runcontrol == -2

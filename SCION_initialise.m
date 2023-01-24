@@ -79,6 +79,7 @@ function run = SCION_initialise(runcontrol)
 
     %%%% reductant input
     pars.k_reductant_input = 0.4e12 ;  %%%% schopf and klein 1992
+    pars.FeIIhydro = 0 ;
     
     %%%%%% water reservoir sizes in m3 (m=margins, s=surface, h= hi-lat, d=deep)
     pars.vol_p  = 2.6e15 ;  %%%% approx volume of all shelves and slope to depth 100m, area pecentage 5%
@@ -161,10 +162,27 @@ function run = SCION_initialise(runcontrol)
     pars.H2S_s_0  = 0;
     pars.H2S_h_0  = 0;
     pars.H2S_d_0  = 0; 
+    %%%%%% initial S isotope composition
+    pars.d34s_SO4_p_0  = 20 ;
+    pars.d34s_SO4_di_0 = 20 ;
+    pars.d34s_SO4_s_0  = 20 ;
+    pars.d34s_SO4_h_0  = 20 ;
+    pars.d34s_SO4_d_0  = 20 ;
+    %%%%%% initial size of crust C and S reservoirs in moles
+    pars.G_0 = 1.25 * 10^21 ;
+    pars.C_0 = 5 * 10^21 ;
+    pars.GYP_0 = 9.375e19; % 1.8 * 10^20
+    pars.PYR_0 = 1.875e20; % 2 * 10^20
+    %%%%%% initial isotope composition of crust C and S reservoirs
+    pars.d13c_G_0 = -27 ;
+    pars.d13c_C_0 = -2 ;
+    pars.d34s_PYR_0 = -5 ;
+    pars.d34s_GYP_0 = 20 ;   
     
-    %%%%%% initial size of land S reservoirs in moles
-    pars.GYP_0 = 9.375e19;
-    pars.PYR_0 = 1.875e20;
+    %%%%%%% set starting reservoir sizes 
+%     pars.CAL_0 = 1.397e19 ;
+%     pars.tempstart = 288;
+%     pars.CAL_start = pars.CAL0; 
    
     %%%% org C cycle
     pars.k_locb = 2.5e12 ;
@@ -176,7 +194,6 @@ function run = SCION_initialise(runcontrol)
     %%%% carb C cycle
     pars.k_ccdeg = 12e12 ;
     pars.k_carbw = 8e12 ; % 12e12 in MBOX frontend
-%     pars.k_sfw = 1.75e12 ; %%% delete?
     pars.k_mccb = pars.k_carbw + pars.k_ccdeg ; % mass balance minus sfw
     pars.k_silw = pars.k_mccb - pars.k_carbw ; % used in line 703, P weathering
     pars.basfrac = 0.3 ;
@@ -184,7 +201,6 @@ function run = SCION_initialise(runcontrol)
     pars.k_basw = pars.k_silw * pars.basfrac ;
 
     %%%% S cycle
-%     pars.k_mpsb = 0.7e12 ; % stop
     pars.k_mgsb = 1.25e12 ;
     pars.k_pyrw = 1.85e12 ;
     pars.k_gypw = 1.25e12 ;
@@ -197,35 +213,14 @@ function run = SCION_initialise(runcontrol)
     pars.k_mopb = 1e10 ;
     pars.k_phosw = 4.25e10 ; % pars.k_phosw = 0.0967e12;
     pars.k_landfrac = 0.0588 ;
-    
-%     %%%% N cycle
-%     pars.k_nfix = 8.67e12 ;
-%     pars.k_denit = 4.3e12 ;
-%     %%%% Sr cycle
-%     pars.k_Sr_sedw = 17e9 ;
-%     pars.k_Sr_mantle = 7.3e9 ;
-%     pars.k_Sr_silw = 13e9 ;
-%     pars.k_Sr_granw = pars.k_Sr_silw * (1 - pars.basfrac) ;
-%     pars.k_Sr_basw = pars.k_Sr_silw * pars.basfrac ;
-%     pars.total_Sr_removal = pars.k_Sr_granw + pars.k_Sr_basw + pars.k_Sr_sedw + pars.k_Sr_mantle ;
-%     pars.k_Sr_sfw = pars.total_Sr_removal * ( pars.k_sfw / (pars.k_sfw + pars.k_mccb) ) ;
-%     pars.k_Sr_sedb = pars.total_Sr_removal * ( pars.k_mccb / (pars.k_sfw + pars.k_mccb) ) ;
-%     pars.k_Sr_metam = 13e9 ;
-
-%     %%%% others
-%     pars.k_oxfrac = 0.9975 ;
-%     Pconc0 = 2.2 ;
-%     Nconc0 = 30.9 ;
-%     pars.newp0 = 117 * min(Nconc0/16,Pconc0) ;
-    %COPSE constant for calculating pO2 from normalised O2
     pars.copsek16 = 3.762 ;
-%     % oxidative weathering dependency on O2 concentration
-%     pars.a = 0.5 ;
-%     % marine organic carbon burial dependency on new production
-%     pars.b = 2 ; 
-    %%fire feedback
     pars.kfire = 3 ;
-
+    pars.silconst = 0.33 ;
+    pars.carbconst = 0.9 ;
+    
+    %%%%%% present Fe weathering rate, mol yr-1
+    pars.k_FeIIIw = 2e9;
+    
     %%%%%% Redfeild ratio
     pars.Red_C_P = 106;
     pars.Red_C_N = 106 / 16;
@@ -255,13 +250,7 @@ function run = SCION_initialise(runcontrol)
     pars.sFeIII_p = 190e9;
     pars.sFeIII_di = 70e9;
     pars.sFeIII_d =  50e9;
-    %%%%% reservoir present day sizes (mol)
-    pars.G0 = 1.25 * 10^21 ;
-    pars.C0 = 5 * 10^21 ;
-    pars.PYR0 = 1.8 * 10^20 ;
-    pars.GYP0 = 2 * 10^20 ;
-    pars.CAL0 = 1.397e19 ;
-
+    %%%%% reservoir present day sizes (mol)  
 
     %%%% finished loading params
     if sensanal == 0 
@@ -376,29 +365,87 @@ function run = SCION_initialise(runcontrol)
 
     %%%% set stepnumber to 1
     stepnumber = 1 ;
-
-    %%%%%%% set starting reservoir sizes 
-%     pars.pstart = pars.P0;
-    pars.tempstart = 288;
-    pars.CAL_start = pars.CAL0;
-%     pars.N_start = pars.N0;
-%     pars.OSr_start = pars.OSr0;
-%     pars.SSr_start = pars.SSr0;
-    pars.delta_A_start = 0 ;
-    pars.delta_S_start = 35 ;
-    pars.delta_G_start = -27 ;
-    pars.delta_C_start = -2 ;
-    pars.delta_PYR_start = -5 ;
-    pars.delta_GYP_start = 20 ;
-    pars.delta_OSr_start = 0.708 ;
-    pars.delta_SSr_start = 0.708 ;
-
+    
+ 
+    %%%% model start state of reservoirs %%%%%%
+    pars.CO2_a_start = pars.CO2_a_0 ;
+    pars.DIC_p_start = pars.DIC_p_0 ;
+    pars.DIC_di_start = pars.DIC_di_0 ;
+    pars.DIC_s_start = pars.DIC_s_0 ;
+    pars.DIC_h_start = pars.DIC_h_0 ;
+    pars.DIC_d_start = pars.DIC_d_0;
+    pars.ALK_p_start = pars.ALK_p_0 ;
+    pars.ALK_di_start = pars.ALK_di_0 ;
+    pars.ALK_s_start = pars.ALK_s_0 ;
+    pars.ALK_h_start = pars.ALK_h_0 ;
+    pars.ALK_d_start = pars.ALK_d_0 ;
+    pars.d13c_atm_start = pars.d13c_atm_0 ;
+    pars.d13c_DIC_p_start  = pars.d13c_DIC_p_0 ;
+    pars.d13c_DIC_di_start = pars.d13c_DIC_di_0 ;
+    pars.d13c_DIC_s_start = pars.d13c_DIC_s_0 ;
+    pars.d13c_DIC_h_start = pars.d13c_DIC_h_0;
+    pars.d13c_DIC_d_start = pars.d13c_DIC_d_0 ;         
+    pars.POC_p_start = pars.POC_p_0 ;
+    pars.POC_di_start = pars.POC_di_0 ;
+    pars.POC_s_start = pars.POC_s_0 ;
+    pars.POC_h_start = pars.POC_h_0 ;
+    pars.POC_d_start = pars.POC_d_0 ;
+    pars.DP_p_start = pars.DP_p_0 ;
+    pars.DP_di_start = pars.DP_di_0;
+    pars.DP_s_start = pars.DP_s_0 ;
+    pars.DP_h_start = pars.DP_h_0 ;
+    pars.DP_d_start = pars.DP_d_0 ;
+    pars.d13c_POC_p_start = pars.d13c_POC_p_0 ;
+    pars.d13c_POC_di_start = pars.d13c_POC_di_0 ;
+    pars.d13c_POC_s_start = pars.d13c_POC_s_0 ;
+    pars.d13c_POC_h_start = pars.d13c_POC_h_0 ;
+    pars.d13c_POC_d_start = pars.d13c_POC_d_0 ;
+    pars.O2_a_start = pars.O2_a_0 ;
+    pars.O2_p_start  = pars.O2_p_0 ;
+    pars.O2_di_start = pars.O2_di_0 ;
+    pars.O2_s_start = pars.O2_s_0 ;
+    pars.O2_h_start = pars.O2_h_0 ;
+    pars.O2_d_start = pars.O2_d_0 ;
+    pars.FeIII_p_start = pars.FeIII_p_0 ;
+    pars.FeIII_di_start = pars.FeIII_di_0 ;
+    pars.FeIII_s_start = pars.FeIII_s_0 ;
+    pars.FeIII_h_start = pars.FeIII_h_0 ;
+    pars.FeIII_d_start = pars.FeIII_d_0 ;
+    pars.SO4_p_start = pars.SO4_p_0 ;
+    pars.SO4_di_start = pars.SO4_di_0 ;
+    pars.SO4_s_start = pars.SO4_s_0;
+    pars.SO4_h_start = pars.SO4_h_0 ;
+    pars.SO4_d_start = pars.SO4_d_0 ;
+    pars.FeII_p_start = pars.FeII_p_0;
+    pars.FeII_di_start = pars.FeII_di_0 ;
+    pars.FeII_s_start = pars.FeII_s_0 ;
+    pars.FeII_h_start = pars.FeII_h_0 ;
+    pars.FeII_d_start = pars.FeII_d_0 ;
+    pars.H2S_p_start = pars.H2S_p_0 ;
+    pars.H2S_di_start = pars.H2S_di_0 ;
+    pars.H2S_s_start = pars.H2S_s_0;
+    pars.H2S_h_start = pars.H2S_h_0 ;
+    pars.H2S_d_start = pars.H2S_d_0 ;
+    pars.d34s_SO4_p_start = pars.d34s_SO4_p_0;
+    pars.d34s_SO4_di_start = pars.d34s_SO4_di_0;
+    pars.d34s_SO4_s_start = pars.d34s_SO4_s_0;
+    pars.d34s_SO4_h_start = pars.d34s_SO4_h_0;
+    pars.d34s_SO4_d_start = pars.d34s_SO4_d_0;
+    pars.G_start = pars.G_0 ;
+    pars.C_start = pars.C_0 ;
+    pars.PYR_start = pars.PYR_0 ;
+    pars.GYP_start = pars.GYP_0 ;
+    pars.d13c_G_start = pars.d13c_G_0 ;
+    pars.d13c_C_start = pars.d13c_C_0 ;
+    pars.d34s_PYR_start = pars.d34s_PYR_0 ;
+    pars.d34s_GYP_start = pars.d34s_GYP_0 ;
+   
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%   Initial parameter tuning option  %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if isempty(Gtune) == 0
-        pars.ostart = pars.O0 * abs( Otune )  ;
+        pars.ostart = pars.O0 * abs( Otune ) ;
         pars.astart = pars.A0 * abs( Atune ) ;
         pars.sstart = pars.S0 * abs( Stune ) ;
         pars.gstart = pars.G0 * abs( Gtune ) ;
@@ -407,23 +454,6 @@ function run = SCION_initialise(runcontrol)
         pars.gypstart = pars.GYP0 * abs( GYPtune ) ; 
     end
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-    %%%%% if no tuning use previously tuned values
-%     if isempty(Gtune) == 1
-% 
-%         outputs = [ 0.55 1 1.2 1 0.1 0.05 3 ] ;
-%         
-%         pars.gstart = pars.G0 * outputs(1) ;
-%         pars.cstart = pars.C0 * outputs(2) ;
-%         pars.pyrstart = pars.PYR0 * outputs(3) ;
-%         pars.gypstart = pars.GYP0 * outputs(4) ; 
-%         pars.ostart = pars.O0 * outputs(5)  ;
-%         pars.sstart = pars.S0 * outputs(6) ;
-%         pars.astart = pars.A0 * outputs(7) ;
-% 
-%     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
