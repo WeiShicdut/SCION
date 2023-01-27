@@ -129,7 +129,7 @@ ylabel('Flux (mol/yr)')
 %%%% plot this model
 plot(state.time_myr,state.silw,'r')
 plot(state.time_myr,state.carbw,'c')
-% plot(state.time_myr,state.sfw,'b')
+plot(state.time_myr,state.sfw,'b')
 plot(state.time_myr,state.mccb,'k') 
 %%%% Legend
 text(-590,28e12,'silw','color','r')
