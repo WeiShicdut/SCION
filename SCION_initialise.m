@@ -78,8 +78,8 @@ function run = SCION_initialise(runcontrol)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     %%%% reductant input
-    pars.k_reductant_input = 0.4e12 ;  %%%% schopf and klein 1992
-    pars.FeIIhydro = 0 ;
+%     pars.k_reductant_input = 0.4e12 ;  %%%% schopf and klein 1992
+    pars.k_reductant_input = 0 ;  %%%% schopf and klein 1992
     
     %%%%%% water reservoir sizes in m3 (m=margins, s=surface, h= hi-lat, d=deep)
     pars.vol_p  = 2.6e15 ;  %%%% approx volume of all shelves and slope to depth 100m, area pecentage 5%
@@ -178,17 +178,22 @@ function run = SCION_initialise(runcontrol)
     pars.d13c_C_0 = -2 ;
     pars.d34s_PYR_0 = -5 ;
     pars.d34s_GYP_0 = 20 ;   
+    
+    %%%%%%% set starting reservoir sizes 
+%     pars.CAL_0 = 1.397e19 ;
+%     pars.tempstart = 288;
+%     pars.CAL_start = pars.CAL0; 
    
     %%%% org C cycle
     pars.k_locb = 2.5e12 ;
-    pars.k_mocb = 2.5e12 ; % 7e12 in MBOX frontend
+    pars.k_mocb = 7e12 ; % 7e12 in MBOX frontend
     pars.k_ocdeg = 1.25e12 ;
     %%%% fluxes calculated for steady state
     pars.k_oxidw = pars.k_mocb + pars.k_locb - pars.k_ocdeg - pars.k_reductant_input ;
 
     %%%% carb C cycle
-    pars.k_ccdeg = 12e12 ;
-    pars.k_carbw = 8e12 ; % 12e12 in MBOX frontend
+    pars.k_ccdeg = 8e12 ;
+    pars.k_carbw = 12e12 ; 
     pars.k_mccb = pars.k_carbw + pars.k_ccdeg ; % mass balance minus sfw
     pars.k_silw = pars.k_mccb - pars.k_carbw ; % used in line 703, P weathering
     pars.basfrac = 0.3 ;
@@ -203,18 +208,20 @@ function run = SCION_initialise(runcontrol)
     pars.k_gypdeg = 0 ; % need a new value
     
     %%%% P cycle
-    pars.k_capb = 2e10 ;
-    pars.k_fepb = 1e10 ;
-    pars.k_mopb = 1e10 ;
-    pars.k_phosw = 4.25e10 ; % pars.k_phosw = 0.0967e12;
+%     pars.k_capb = 2e10 ;
+%     pars.k_fepb = 1e10 ;
+%     pars.k_mopb = 1e10 ;
+    pars.k_phosw = 0.0967e12 ; 
     pars.k_landfrac = 0.0588 ;
     pars.copsek16 = 3.762 ;
     pars.kfire = 3 ;
     pars.silconst = 0.33 ;
     pars.carbconst = 0.9 ;
     
-    %%%%%% present Fe weathering rate, mol yr-1
+    %%%%%% present FeIII weathering rate, mol yr-1
     pars.k_FeIIIw = 2e9;
+    %%%%%% present FeII hydrothemal rate, mol yr-1
+    pars.FeIIhydro = 13.5e9 ;
     
     %%%%%% Redfeild ratio
     pars.Red_C_P = 106;
@@ -306,13 +313,13 @@ function run = SCION_initialise(runcontrol)
     
     if sensanal == 1
         %%%% generate random number in [-1 +1]
-        sensparams.randminusplus1 = 2*(0.5 - rand) ;
-        sensparams.randminusplus2 = 2*(0.5 - rand) ;
-        sensparams.randminusplus3 = 2*(0.5 - rand) ;
-        sensparams.randminusplus4 = 2*(0.5 - rand) ;
-        sensparams.randminusplus5 = 2*(0.5 - rand) ;
-        sensparams.randminusplus6 = 2*(0.5 - rand) ;
-        sensparams.randminusplus7 = 2*(0.5 - rand) ;    
+        sensparams.randminusplus1 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus2 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus3 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus4 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus5 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus6 = 2 * (0.5 - rand) ;
+        sensparams.randminusplus7 = 2 * (0.5 - rand) ;    
     end
 
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -361,7 +368,6 @@ function run = SCION_initialise(runcontrol)
     %%%% set stepnumber to 1
     stepnumber = 1 ;
     
- 
     %%%% model start state of reservoirs %%%%%%
     pars.CO2_a_start = pars.CO2_a_0 ;
     pars.DIC_p_start = pars.DIC_p_0 ;
@@ -436,7 +442,7 @@ function run = SCION_initialise(runcontrol)
     pars.d34s_GYP_start = pars.d34s_GYP_0 ;
    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %%%%%%%%%%%%%%%%%   Initial parameter tuning option  %%%%%%%%%%%%%%%%
+    %%%%%%%%%%%%%%%%%  Initial parameter tuning option  %%%%%%%%%%%%%%%%
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
     if isempty(Gtune) == 0
@@ -525,167 +531,6 @@ function run = SCION_initialise(runcontrol)
     pars.startstate(70) = pars.d34s_PYR_start ;
     pars.startstate(71) = pars.d34s_GYP_start ;
     
-    %%% Vectors to store the results
-
-    statevector =1:35
-
-    state.pO2_af = statevector;
-    state.Atmospheric_CO2_ppmf = statevector;
-    state.DIC_conc_pf = statevector;
-    state.DIC_conc_dif = statevector;
-    state.DIC_conc_sf = statevector;
-    state.DIC_conc_hf = statevector;
-    state.DIC_conc_df = statevector;
-    state.ALK_conc_pf = statevector;
-    state.ALK_conc_dif = statevector;
-    state.ALK_conc_sf = statevector;
-    state.ALK_conc_hf = statevector;
-    state.ALK_conc_df = statevector;
-    state.pH_pf = statevector;
-    state.pH_dif = statevector;
-    state.pH_sf = statevector;
-    state.pH_hf = statevector;
-    state.pH_df = statevector;
-    state.T_sf = statevector;
-    state.T_hf = statevector;
-    state.T_df = statevector;
-    state.T_contf = statevector;
-    state.GASTf = statevector;
-    state.ccdegf = statevector;
-    state.baswf = statevector;
-    state.granwf = statevector;
-    state.silwf = statevector;
-    state.carbwf = statevector;
-    state.mccb_pf = statevector;
-    state.mccb_dif = statevector;
-    state.mccb_df = statevector;
-    state.POC_pf = statevector;
-    state.POC_dif = statevector;
-    state.POC_sf = statevector;
-    state.POC_hf = statevector;
-    state.POC_df = statevector;
-    state.DP_conc_pf = statevector;
-    state.DP_conc_dif = statevector;
-    state.DP_conc_sf = statevector;
-    state.DP_conc_hf = statevector;
-    state.DP_conc_df = statevector;
-    state.O2_conc_pf = statevector;
-    state.O2_conc_dif = statevector;
-    state.O2_conc_sf = statevector;
-    state.O2_conc_hf = statevector;
-    state.O2_conc_df = statevector;
-    state.FeIII_conc_pf = statevector;
-    state.FeIII_conc_dif = statevector;
-    state.FeIII_conc_sf = statevector;
-    state.FeIII_conc_hf = statevector;
-    state.FeIII_conc_df = statevector;
-    state.SO4_conc_pf = statevector;
-    state.SO4_conc_dif = statevector;
-    state.SO4_conc_sf = statevector;
-    state.SO4_conc_hf = statevector;
-    state.SO4_conc_df = statevector;
-    state.FeII_conc_pf = statevector;
-    state.FeII_conc_dif = statevector;
-    state.FeII_conc_sf = statevector;
-    state.FeII_conc_hf = statevector;
-    state.FeII_conc_df = statevector;
-    state.H2S_conc_pf = statevector;
-    state.H2S_conc_dif = statevector;
-    state.H2S_conc_sf = statevector;
-    state.H2S_conc_hf = statevector;
-    state.H2S_conc_df = statevector;
-    state.O2_conc_pf = statevector;
-    state.O2_conc_dif = statevector;
-    state.O2_conc_sf = statevector;
-    state.O2_conc_hf = statevector;
-    state.O2_conc_df = statevector;
-    state.FeIIIwf = statevector;
-    state.FeIIIscavenging_pf = statevector;
-    state.FeIIIscavenging_dif = statevector;
-    state.FeIIIscavenging_sf = statevector;
-    state.FeIIIscavenging_hf = statevector;
-    state.FeIIIscavenging_df = statevector;
-    state.pyrwf = statevector;
-    state.gypwf = statevector;
-    state.mgsbf = statevector;
-    state.pyF_pf = statevector;
-    state.pyF_dif = statevector;
-    state.pyF_sf = statevector;
-    state.pyF_hf = statevector;
-    state.pyF_df = statevector;
-    state.ironO_pf = statevector;
-    state.ironO_dif = statevector;
-    state.ironO_sf = statevector;
-    state.ironO_hf = statevector;
-    state.ironO_df = statevector;
-    state.SironR_pf = statevector;
-    state.SironR_dif = statevector;
-    state.SironR_sf = statevector;
-    state.SironR_hf = statevector;
-    state.SironR_df = statevector;
-    state.SideP_pf = statevector;
-    state.SideP_dif = statevector;
-    state.SideP_sf = statevector;
-    state.SideP_hf = statevector;
-    state.SideP_df = statevector;
-    state.pripr_pf = statevector;
-    state.pripr_sf = statevector;
-    state.pripr_hf = statevector;
-    state.remin_pf = statevector;
-    state.remin_dif = statevector;
-    state.remin_sf = statevector;
-    state.remin_hf = statevector;
-    state.remin_df = statevector;
-    state.mocb_pf = statevector;
-    state.mocb_dif = statevector;
-    state.mocb_df = statevector;
-    state.phoswf = statevector;
-    state.sulfatebentic_pf = statevector;
-    state.mgsbf = statevector;
-    state.sulfR_pf = statevector;
-    state.sulfO_pf = statevector;
-    state.SironR_pf = statevector;
-    state.pyF_pf = statevector;
-    state.pyrwf = statevector;
-    state.gypwf = statevector;
-    state.SO4_lf = statevector;
-    state.mocb_p_FeIIIf = statevector;
-    state.mocb_di_FeIIIf = statevector;
-    state.mocb_d_FeIIIf = statevector;
-    state.ocbother_pf = statevector;
-    state.ocbother_dif = statevector;
-    state.ocbother_df = statevector;
-    state.water_sediment_pf = statevector;
-    state.water_sediment_dif = statevector;
-    state.water_sediment_df = statevector;
-    state.BEf_p = statevector;
-    state.BEf_di = statevector;
-    state.BEf_d = statevector;
-    state.AR_pf = statevector;
-    state.AR_dif = statevector;
-    state.AR_sf = statevector;
-    state.AR_hf = statevector;
-    state.AR_df = statevector;
-    state.ironR_pf = statevector;
-    state.ironR_dif = statevector;
-    state.ironR_sf = statevector;
-    state.ironR_hf = statevector;
-    state.ironR_df = statevector;
-    state.sulfR_pf = statevector;
-    state.sulfR_dif = statevector;
-    state.sulfR_sf = statevector;
-    state.sulfR_hf = statevector;
-    state.sulfR_df = statevector;
-    state.oxygenbentic_pf = statevector;
-    state.oxygenbentic_dif = statevector;
-    state.oxygenbentic_df = statevector;
-    state.sulfatebentic_pf = statevector;
-    state.sulfatebentic_dif = statevector;
-    state.sulfatebentic_df = statevector;
-    state.methanogenesis_pf = statevector;
-    state.methanogenesis_dif = statevector;
-    state.methanogenesis_df = statevector;
-
     %%%% note model start time
     tic
 

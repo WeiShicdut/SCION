@@ -564,11 +564,17 @@ Mix_H2S_d_h  = mixcoeff_dh_m3_yr * (H2S_conc_d  - H2S_conc_h) ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% Global average surface temperature
-T_s = 298 + (GAST - 288) * 0.66  ;  
-T_h = max( 275.5 + (GAST - 288) , 271 ) ;
-T_d = max( 275.5 + (GAST - 288) , 271 ) ;
-T_p = T_s ;
-T_di = T_s ;
+% T_s = 298 + (GAST - 15) * 0.66  ;  
+% T_h = max( 275.5 + (GAST - 15) , 271 ) ;
+% T_d = max( 275.5 + (GAST - 15) , 271 ) ;
+% T_p = T_s ;
+% T_di = T_s ;
+
+T_s = GAST ;
+T_h = GAST ;
+T_d = GAST ;
+T_p = GAST ;
+T_di = GAST ;
 
 %%%% Oxygen level that is in equilibrium with atmosphere in mol/m3
 O2_eq_ap = exp(-173.4292+249.6339*100/T_p+143.3483*log(T_p/100)-21.8492*T_p/100+35*(-0.033096+0.014259*T_p/100- 0.0017000*T_p/100*T_p/100))/22.4*O2_a / pars.O2_a_0 ;
@@ -580,7 +586,7 @@ AirSeaO2_p = 3.572831e+14 * ( O2_eq_ap - O2_conc_p) ;
 AirSeaO2_s = 1.476284e+15 * ( O2_eq_as - O2_conc_s) ;
 AirSeaO2_h = 2.210798e+16 * ( O2_eq_ah - O2_conc_h) ;
 
-%%%% Carbonate chemistry parameters
+%%%% Carbonate chemistry parameters 
 k_2  = 7.4e-10 ;
 k_carb_p = 0.000575 + 0.000006 * ( T_p - 278 ) ;
 KCO2_p = 0.035 + 0.0019 * ( T_p - 278 ) ;
@@ -680,7 +686,7 @@ carbw = carbw_spatial * f_biota ;
 carbw_relative = (carbw / pars.k_carbw);
 
 %%%% oxidative weathering %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-oxidw = pars.k_oxidw * carbw_relative * UPLIFT^pars.silconst * ORG_AREA * sigmf((O2_a/pars.O2_a_0),[5,-7]) * ((O2_a/pars.O2_a_0)^0.5) * (G/pars.G0);
+oxidw = pars.k_oxidw * carbw_relative * UPLIFT^pars.silconst * ORG_AREA * sigmf((O2_a/pars.O2_a_0),[5,-7]) * ((O2_a/pars.O2_a_0)^0.5) * (G/pars.G_0);
 
 %%%% FeIII weathering fluxes mol yr-1 %%%%%%%%%%%%%%%%%%%%%%%%%
 FeIIIw = pars.k_FeIIIw * silw /(pars.k_basw + pars.k_granw);
@@ -705,10 +711,10 @@ psea = phosw - pland ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Degassing fluxes  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-ccdeg  = pars.k_ccdeg  * DEGASS * (C/pars.C0) * Bforcing ;
-ocdeg  = pars.k_ocdeg  * DEGASS * (G/pars.G0) * sigmf((O2_a/pars.O2_a_0),[5,-7]);
-pyrdeg = pars.k_pyrdeg * DEGASS * (PYR/pars.PYR0) * sigmf(log10(O2_a/pars.O2_a_0),[5 -7]);
-gypdeg = pars.k_gypdeg * DEGASS * (GYP/pars.GYP0);
+ccdeg  = pars.k_ccdeg  * DEGASS * (C/pars.C_0) * Bforcing ;
+ocdeg  = pars.k_ocdeg  * DEGASS * (G/pars.G_0) * sigmf((O2_a/pars.O2_a_0),[5,-7]);
+pyrdeg = pars.k_pyrdeg * DEGASS * (PYR/pars.PYR_0) * sigmf(log10(O2_a/pars.O2_a_0),[5 -7]);
+gypdeg = pars.k_gypdeg * DEGASS * (GYP/pars.GYP_0);
 
 %%%% generic CO2 input forcing to test model
 CO2_input = 0;
@@ -746,6 +752,10 @@ mccb_di = pars.k_mccb * distalfrac_mccb * (1 / satpresent_di) * ((sat_minus_1di)
 %%%% deep carbonate burial
 sat_minus_1d = max(sat_d - 1, 0) ;
 mccb_d = pars.k_mccb * deepfrac_mccb * (1 / satpresent_d) * ((sat_minus_1d)^1.7) ;
+
+%%%% total mccb
+mccb = mccb_p + mccb_di + mccb_d ;
+
 %%%% land-derived organic C burial
 locb = pars.k_locb * (pland/pland0) * CPLAND ;
 %%%% burial of sulfate
@@ -801,6 +811,9 @@ pyF_di = pars.kpy * max((FeII_conc_di * H2S_conc_di/(pars.KspFeSaq + H2S_conc_di
 pyF_s  = pars.kpy * max((FeII_conc_s  * H2S_conc_s /(pars.KspFeSaq + H2S_conc_s)  - pars.STFeSaq), 0) * H2S_conc_s  * pars.vol_s ;
 pyF_h  = pars.kpy * max((FeII_conc_h  * H2S_conc_h /(pars.KspFeSaq + H2S_conc_h)  - pars.STFeSaq), 0) * H2S_conc_h  * pars.vol_h ;
 pyF_d  = pars.kpy * max((FeII_conc_d  * H2S_conc_d /(pars.KspFeSaq + H2S_conc_d)  - pars.STFeSaq), 0) * H2S_conc_d  * pars.vol_d ;
+
+mpsb = pyF_p + pyF_di + pyF_s + pyF_h + pyF_d ;
+
 %%% FeII oxidation via oxygen
 ironO_p  = pars.kironO * FeII_conc_p  * O2_conc_p  * pars.vol_p ;
 ironO_di = pars.kironO * FeII_conc_di * O2_conc_di * pars.vol_di ;
@@ -846,9 +859,10 @@ water_sediment_d  = 1.79e-4 * POC_d;
 FeIIbenthic_p  = 62.2e9;
 FeIIbenthic_di = 30.5e9;
 FeIIbenthic_d  = 57.6e9;
+
 %%% iron bound organic burial
 mocb_p_FeIII  = min(0.0476  * POC_p,  4*(pars.sFeIII_p  + FeIIIscavenging_p  - FeIIbenthic_p));
-mocb_di_FeIII = min(0.0400  * POC_di, 4*(pars.sFeIII_di + FeIIIscavenging_di - FeIIbenthic_di ));
+mocb_di_FeIII = min(0.0400  * POC_di, 4*(pars.sFeIII_di + FeIIIscavenging_di - FeIIbenthic_di));
 mocb_d_FeIII  = min(1.79e-4 * POC_d,  4*(pars.sFeIII_d  + FeIIIscavenging_s + FeIIIscavenging_h + FeIIIscavenging_d - FeIIbenthic_d));
 
 BE_p   = 0.128;
@@ -879,6 +893,9 @@ DICbenthic_p  = water_sediment_p  - mocb_p;
 DICbenthic_di = water_sediment_di - mocb_di;
 DICbenthic_d  = water_sediment_d  - mocb_d;
 
+%%%% record total Corg burial
+mocb = mocb_p + mocb_di + mocb_d ;
+
 % f_anoxic_p = 1 - 0.9975 * O2_a / pars.O2_a_0 ;
 % CPratio_p = CPoxic * CPanoxic / ( (1 - f_anoxic_p )*CPanoxic + f_anoxic_p*CPoxic ) ;
 CPratio_p = 250 ;
@@ -903,6 +920,12 @@ Pauth_d = 14e9 * DP_d / pars.DP_d_0;
 phosbenthic_p  = water_sediment_p  / pars.Red_C_P - POPburial_p  - PFe_p  - Pauth_p ;
 phosbenthic_di = water_sediment_di / pars.Red_C_P - POPburial_di - PFe_di - Pauth_di ;
 phosbenthic_d  = water_sediment_d  / pars.Red_C_P - POPburial_d  - PFe_d  - Pauth_d;
+
+
+%%%% FeII hydrothermal input proximal
+FeIIhydro = pars.FeIIhydro ;
+%%%% Dust FeIII input to surface
+FeIIIa_s = pars.FeIIIa_s ;
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Reservoir calculations   %%%%%%%%%%%%%%%%%%%%%%%%
@@ -1032,7 +1055,7 @@ dy(39) = FeIIIw + Tran_FeIII_di_p - Tran_FeIII_p_s + Mix_FeIII_di_p - pripr_p/pa
 dy(40) = Tran_FeIII_d_di - Tran_FeIII_di_p - Mix_FeIII_di_p + remin_di/pars.Red_C_Fe - FeIIIscavenging_di - 4*ironR_di + ironO_di - 8*SironR_di;
 
 %%%% FeIII_s
-dy(41) = pars.FeIIIa_s + Tran_FeIII_p_s - Tran_FeIII_s_h + Tran_FeIII_d_s + Mix_FeIII_d_s - pripr_s/pars.Red_C_Fe + remin_s/pars.Red_C_Fe - FeIIIscavenging_s - 4*ironR_s  + ironO_s - 8*SironR_s;
+dy(41) = FeIIIa_s + Tran_FeIII_p_s - Tran_FeIII_s_h + Tran_FeIII_d_s + Mix_FeIII_d_s - pripr_s/pars.Red_C_Fe + remin_s/pars.Red_C_Fe - FeIIIscavenging_s - 4*ironR_s  + ironO_s - 8*SironR_s;
 
 %%%% FeIII_h
 dy(42) = pars.FeIIIa_h + Tran_FeIII_s_h - Tran_FeIII_h_d + Mix_FeIII_d_h - pripr_h/pars.Red_C_Fe + remin_h/pars.Red_C_Fe - FeIIIscavenging_h - 4*ironR_h  + ironO_h - 8*SironR_h;
@@ -1068,7 +1091,7 @@ dy(51) = Tran_FeII_p_s - Tran_FeII_s_h + Tran_FeII_d_s + Mix_FeII_d_s + 4*ironR_
 dy(52) = Tran_FeII_s_h - Tran_FeII_h_d + Mix_FeII_d_h + 4*ironR_h - pyF_h - ironO_h + 8*SironR_h - SideP_h;
 
 %%%% FeII_d
-dy(53) = FeIIbenthic_d + pars.FeIIhydro + Tran_FeII_h_d - Tran_FeII_d_di - Tran_FeII_d_s - Mix_FeII_d_s - Mix_FeII_d_h + 4*ironR_d - pyF_d - ironO_d + 8*SironR_d - SideP_d;
+dy(53) = FeIIbenthic_d + FeIIhydro + Tran_FeII_h_d - Tran_FeII_d_di - Tran_FeII_d_s - Mix_FeII_d_s - Mix_FeII_d_h + 4*ironR_d - pyF_d - ironO_d + 8*SironR_d - SideP_d;
 
 %%%% H2S_p
 dy(54) = Tran_H2S_di_p - Tran_H2S_p_s + Mix_H2S_di_p + 0.5*sulfR_p/pars.Red_C_O - 1.75*pyF_p - sulfO_p - SironR_p;
@@ -1122,7 +1145,6 @@ dy(69) = mccb_p*d13c_DIC_p + mccb_di*d13c_DIC_di + mccb_d*d13c_DIC_d - carbw*d13
 dy(70) = pyF_p*(d34s_SO4_p - capdelS) + pyF_di*(d34s_SO4_di - capdelS) + pyF_s*(d34s_SO4_s - capdelS) + pyF_h*(d34s_SO4_h - capdelS) + pyF_d*(d34s_SO4_d - capdelS) - sulfatebentic_p*(d34s_SO4_p - capdelS) - sulfatebentic_di*(d34s_SO4_di - capdelS) - sulfatebentic_d*(d34s_SO4_d - capdelS) - pyrw*d34s_PYR - pyrdeg*d34s_PYR ;
 
 %%% delta_GYP * GYP (young)
-%%% Buried gypsum (GYP)
 dy(71) = mgsb*d34s_SO4_p - gypw*d34s_GYP - gypdeg*d34s_GYP ;
 
 %%%% reductant input
@@ -1153,7 +1175,9 @@ if sensanal == 0
     workingstate.CO2ppm(stepnumber,1) = CO2ppm ;
     workingstate.CO2atm(stepnumber,1) = CO2atm ;
     workingstate.pCO2_a(stepnumber,1) = pCO2_a ;
+    workingstate.RCO2(stepnumber,1) = RCO2 ;
     workingstate.pO2_a(stepnumber,1) = pO2_a ;
+    workingstate.mrO2(stepnumber,1) = mrO2 ;
     workingstate.DIC_p(stepnumber,1) = DIC_p ;
     workingstate.DIC_di(stepnumber,1) = DIC_di ;
     workingstate.DIC_s(stepnumber,1) = DIC_s ;
@@ -1198,9 +1222,11 @@ if sensanal == 0
     workingstate.mccb_p(stepnumber,1) = mccb_p ;
     workingstate.mccb_di(stepnumber,1) = mccb_di ;
     workingstate.mccb_d(stepnumber,1) = mccb_d ;
+    workingstate.mccb(stepnumber,1) = mccb ;
     workingstate.mocb_p(stepnumber,1) = mocb_p ;
     workingstate.mocb_di(stepnumber,1) = mocb_di ;
     workingstate.mocb_d(stepnumber,1) = mocb_d ;
+    workingstate.mocb(stepnumber,1) = mocb ;
     workingstate.HCO3_p(stepnumber,1) = HCO3_p ;
     workingstate.CO3_p(stepnumber,1) = CO3_p ;
     workingstate.H_p(stepnumber,1) = H_p ;
@@ -1358,6 +1384,7 @@ if sensanal == 0
     workingstate.pyrw(stepnumber,1) = pyrw;
     workingstate.gypw(stepnumber,1) = gypw;
     workingstate.mgsb(stepnumber,1) = mgsb;
+    workingstate.pyrdeg(stepnumber,1) = pyrdeg;
     workingstate.mocb_p_FeIII(stepnumber,1) = mocb_p_FeIII;
     workingstate.mocb_di_FeIII(stepnumber,1) = mocb_di_FeIII;
     workingstate.mocb_d_FeIII(stepnumber,1) = mocb_d_FeIII;
@@ -1392,7 +1419,6 @@ if sensanal == 0
     workingstate.methanogenesis_di(stepnumber,1) = methanogenesis_di;
     workingstate.methanogenesis_d(stepnumber,1) = methanogenesis_d;
     workingstate.erosion_tot(stepnumber,1) = erosion_tot ;
-    workingstate.TOPO_future(stepnumber,1) = TOPO_future ;
     workingstate.GAST(stepnumber,1) = GAST ;
     workingstate.iceline(stepnumber,1) = iceline ;
     workingstate.d34s_SO4_p(stepnumber,1) = d34s_SO4_p ;
@@ -1407,6 +1433,8 @@ if sensanal == 0
     workingstate.time_myr(stepnumber,1) = t_geol ;
     workingstate.time(stepnumber,1) = t;
     workingstate.reductant_input(stepnumber,1) = reductant_input;
+    workingstate.mpsb(stepnumber,1) = mpsb;
+   
 
     %%%%%%%% print time
     if pars.runcontrol == -2

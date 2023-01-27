@@ -129,7 +129,7 @@ ylabel('Flux (mol/yr)')
 %%%% plot this model
 plot(state.time_myr,state.silw,'r')
 plot(state.time_myr,state.carbw,'c')
-plot(state.time_myr,state.sfw,'b')
+% plot(state.time_myr,state.sfw,'b')
 plot(state.time_myr,state.mccb,'k') 
 %%%% Legend
 text(-590,28e12,'silw','color','r')
@@ -172,8 +172,8 @@ xlim([pars.whenstart/1e6 pars.whenend/1e6])
 xlabel('Time (Ma)')
 ylabel('Relative size')
 %%%% plot this model
-plot(state.time_myr,state.G/pars.G0,'k')
-plot(state.time_myr,state.C/pars.C0,'c')
+plot(state.time_myr,state.G/pars.G_0,'k')
+plot(state.time_myr,state.C/pars.C_0,'c')
 plot(state.time_myr,state.VEG,'g--')
 %%%% Legend
 text(-590,1.5,'VEG','color','g')
@@ -190,8 +190,8 @@ xlim([pars.whenstart/1e6 pars.whenend/1e6])
 xlabel('Time (Ma)')
 ylabel('Relative size')
 %%%% plot this model
-plot(state.time_myr,state.PYR/pars.PYR0,'k')
-plot(state.time_myr,state.GYP/pars.GYP0,'c')
+plot(state.time_myr,state.PYR/pars.PYR_0,'k')
+plot(state.time_myr,state.GYP/pars.GYP_0,'c')
 %%%% Legend
 text(-590,1,'PYR','color','k')
 text(-590,0.9,'GYP','color','c')
@@ -207,8 +207,8 @@ ylim([0 3])
 xlabel('Time (Ma)')
 ylabel('Relative size')
 %%%% plot this model
-plot(state.time_myr,state.P/pars.P0,'b')
-plot(state.time_myr,state.N/pars.N0,'g')
+% plot(state.time_myr,state.P/pars.P_0,'b')
+% plot(state.time_myr,state.N/pars.N_0,'g')
 %%%% Legend
 text(-590,1.5,'P','color','b')
 text(-590,1,'N','color','g')
@@ -237,7 +237,7 @@ ylabel('\delta^{13}C_{carb}')
 %%%% plot data comparison
 plot(d13c_x,d13c_y,'.','color',pc2)
 %%%% plot this model
-plot(state.time_myr,state.delta_mccb,'k')
+% plot(state.time_myr,state.delta_mccb,'k')
 
 %%%% d34S record
 subplot(4,4,10)
@@ -249,7 +249,7 @@ ylabel('\delta^{34}S_{sw}')
 %%%% plot data comparison
 plot(d34s_x,d34s_y,'.','color',pc2)
 %%%% plot this model
-plot(state.time_myr,state.d34s_S,'k')
+% plot(state.time_myr,state.d34s_S,'k')
 
 %%%% Ocean 87Sr/86Sr 
 subplot(4,4,11)
@@ -262,7 +262,7 @@ ylabel('^{87}Sr/^{86}Sr seawater')
 %%%% plot data comparison
 plot(sr_x,sr_y,'color',pc2)
 %%%% plot this model
-plot(state.time_myr,state.delta_OSr,'k')
+% plot(state.time_myr,state.delta_OSr,'k')
 
 %%%% SO4
 subplot(4,4,12)
@@ -280,7 +280,7 @@ for u = 1:2:length(SO4_x-1)
    plot( [SO4_x(u) SO4_x(u)] , [SO4_y(u) SO4_y(u+1)], 'color' , pc3 ) ;     
 end
 %%%% plot this model
-plot(state.time_myr,(state.S./pars.S0)*28,'k')
+% plot(state.time_myr,(state.S./pars.S_0)*28,'k')
 
 %%%% O2 (%) 
 subplot(4,4,13)
