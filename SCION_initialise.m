@@ -591,7 +591,7 @@ function run = SCION_initialise(runcontrol)
             if runcontrol>-1
                 SCION_plot_worldgraphic
             end
-            SCION_plot_fluxes
+            SCION_plot_mbox
         end
     end   
 end
