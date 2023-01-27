@@ -564,27 +564,25 @@ Mix_H2S_d_h  = mixcoeff_dh_m3_yr * (H2S_conc_d  - H2S_conc_h) ;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% Global average surface temperature
-% T_s = 298 + (GAST - 15) * 0.66  ;  
-% T_h = max( 275.5 + (GAST - 15) , 271 ) ;
-% T_d = max( 275.5 + (GAST - 15) , 271 ) ;
-% T_p = T_s ;
-% T_di = T_s ;
-
-T_s = GAST ;
-T_h = GAST ;
-T_d = GAST ;
-T_p = GAST ;
-T_di = GAST ;
+T_s = GAST + 273 + 10 ;
+T_h = GAST + 273 - 10 ;
+T_d = GAST + 273 - 10 ;
+T_p = GAST + 273 ;
+T_di = GAST + 273 ;
 
 %%%% Oxygen level that is in equilibrium with atmosphere in mol/m3
-O2_eq_ap = exp(-173.4292+249.6339*100/T_p+143.3483*log(T_p/100)-21.8492*T_p/100+35*(-0.033096+0.014259*T_p/100- 0.0017000*T_p/100*T_p/100))/22.4*O2_a / pars.O2_a_0 ;
-O2_eq_as = exp(-173.4292+249.6339*100/T_s+143.3483*log(T_s/100)-21.8492*T_s/100+35*(-0.033096+0.014259*T_s/100- 0.0017000*T_s/100*T_s/100))/22.4*O2_a / pars.O2_a_0 ;
-O2_eq_ah = exp(-173.4292+249.6339*100/T_h+143.3483*log(T_h/100)-21.8492*T_h/100+35*(-0.033096+0.014259*T_h/100- 0.0017000*T_h/100*T_h/100))/22.4*O2_a / pars.O2_a_0 ;
+O2_eq_ap =  0.3 ;
+O2_eq_as =  0.3 ;
+O2_eq_ah =  0.3 ;
+
+pars.k_airsea_O2_p = 1e12 ;
+pars.k_airsea_O2_s = 1e12 ;
+pars.k_airsea_O2_h = 1e12 ;
 
 %%%% Atmosphere seawater oxygen exchange (mol/yr)
-AirSeaO2_p = 3.572831e+14 * ( O2_eq_ap - O2_conc_p) ;
-AirSeaO2_s = 1.476284e+15 * ( O2_eq_as - O2_conc_s) ;
-AirSeaO2_h = 2.210798e+16 * ( O2_eq_ah - O2_conc_h) ;
+AirSeaO2_p = pars.k_airsea_O2_p * ( O2_eq_ap - O2_conc_p) ;
+AirSeaO2_s = pars.k_airsea_O2_s * ( O2_eq_as - O2_conc_s) ;
+AirSeaO2_h = pars.k_airsea_O2_h * ( O2_eq_ah - O2_conc_h) ;
 
 %%%% Carbonate chemistry parameters 
 k_2  = 7.4e-10 ;
@@ -639,11 +637,10 @@ AirSea_sa = 5e16 * 0.765 * 0.1 * ( pCO2_s) ;
 AirSea_ah = 5e16 * 0.135 * 0.1 * ( pCO2_a ) ;
 AirSea_ha = 5e16 * 0.135 * 0.1 * ( pCO2_h ) ;
 
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Continental fluxes  %%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%55%%%% effect of temp on VEG %%%% fixed %%%%%%%%%%%%%%%
@@ -725,19 +722,19 @@ d13c_CO2_input = -5;
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% CaCO3 saturation proximal
 Ca_conc_p = 1.397e19 / 1.35e18 ; %%%% assume constant hetrogeneous [Ca]
-ksp_p = 0.76 ; %%% in mM^2
+ksp_p = 0.9 ; %%% in mM^2
 sat_p = (Ca_conc_p * CO3_p) / ksp_p ;
 satpresent_p = 3 ;
 
 %%%% CaCO3 saturation distal
 Ca_conc_di = 1.397e19 / 1.35e18 ; %%%% assume constant hetrogeneous [Ca]
-ksp_di = 0.76 ; %%% in mM^2
+ksp_di = 0.9 ; %%% in mM^2
 sat_di = (Ca_conc_di * CO3_di) / ksp_di ;
 satpresent_di = 3 ;
 
 %%%% CaCO3 saturation deep
 Ca_conc_d = 1.397e19 / 1.35e18 ; %%%% assume constant hetrogeneous [Ca]
-ksp_d = 0.76 ; %%% in mM^2
+ksp_d = 0.9 ; %%% in mM^2
 sat_d = ( Ca_conc_d * CO3_d ) / ksp_d ;
 satpresent_d = 1 ;
 
@@ -894,7 +891,9 @@ DICbenthic_di = water_sediment_di - mocb_di;
 DICbenthic_d  = water_sediment_d  - mocb_d;
 
 %%%% record total Corg burial
-mocb = mocb_p + mocb_di + mocb_d ;
+% mocb = mocb_p + mocb_di + mocb_d ;
+
+mocb = pars.k_mocb ;
 
 % f_anoxic_p = 1 - 0.9975 * O2_a / pars.O2_a_0 ;
 % CPratio_p = CPoxic * CPanoxic / ( (1 - f_anoxic_p )*CPanoxic + f_anoxic_p*CPoxic ) ;
@@ -927,6 +926,9 @@ FeIIhydro = pars.FeIIhydro ;
 %%%% Dust FeIII input to surface
 FeIIIa_s = pars.FeIIIa_s ;
 
+%%%% reductant input
+reductant_input = pars.k_reductant_input * DEGASS ;
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Reservoir calculations   %%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -934,221 +936,326 @@ FeIIIa_s = pars.FeIIIa_s ;
 %%%% CO2_a
 dy(1) = ccdeg + ocdeg + oxidw - AirSea_p - AirSea_s - AirSea_h - locb - carbw - 2*silw + CO2_input ;
 
+%%%% without Fe, S cycles
+
 %%%% DIC_p
-dy(2) = AirSea_p + Tran_DIC_di_p - Tran_DIC_p_s + Mix_DIC_di_p + 2*carbw + 2*silw - mccb_p - pripr_p + remin_p + DICbenthic_p - SideP_p;
+dy(2) = AirSea_p + Tran_DIC_di_p - Tran_DIC_p_s + Mix_DIC_di_p + 2*carbw + 2*silw - mccb_p - mocb ;
 
 %%%% DIC_di
-dy(3) =  Tran_DIC_d_di - Tran_DIC_di_p - Mix_DIC_di_p - mccb_di  + remin_di + DICbenthic_di - SideP_di;
+dy(3) =  Tran_DIC_d_di - Tran_DIC_di_p - Mix_DIC_di_p - mccb_di   ;
 
 %%%% DIC_s
-dy(4) = AirSea_s + Tran_DIC_d_s + Tran_DIC_p_s + Mix_DIC_d_s - Tran_DIC_s_h - pripr_s + remin_s - SideP_s;
+dy(4) = AirSea_s + Tran_DIC_d_s + Tran_DIC_p_s + Mix_DIC_d_s - Tran_DIC_s_h  ;
 
 %%%% DIC_h
-dy(5) = AirSea_h + Tran_DIC_s_h + Mix_DIC_d_h - Tran_DIC_h_d - pripr_h + remin_h - SideP_h;
+dy(5) = AirSea_h + Tran_DIC_s_h + Mix_DIC_d_h - Tran_DIC_h_d ;
 
 %%%% DIC_d
-dy(6) =  Tran_DIC_h_d - Tran_DIC_d_s - Tran_DIC_d_di - Mix_DIC_d_s - Mix_DIC_d_h - mccb_d + remin_d + DICbenthic_d - SideP_d;
+dy(6) =  Tran_DIC_h_d - Tran_DIC_d_s - Tran_DIC_d_di - Mix_DIC_d_s - Mix_DIC_d_h - mccb_d ;
 
 %%%% ALK_p
-dy(7) =  Tran_ALK_di_p - Tran_ALK_p_s + Mix_ALK_di_p + 2 * carbw + 2 * silw - 2 * mccb_p - 2 * SideP_p + 0.25 * pyF_p - 2 * ironO_p - sulfO_p + 15 * SironR_p  -4*ironR_p + 0.5*sulfR_p - 3*FeIIIscavenging_p;
+dy(7) =  Tran_ALK_di_p - Tran_ALK_p_s + Mix_ALK_di_p + 2 * carbw + 2 * silw - 2 * mccb_p  ;
 
 %%%% ALK_di
-dy(8) =  Tran_ALK_d_di - Tran_ALK_di_p - Mix_ALK_di_p - 2*mccb_di - 2*SideP_di + 0.25*pyF_di - 2*ironO_di - sulfO_di + 15*SironR_di  -4*ironR_di + 0.5*sulfR_di - 3*FeIIIscavenging_di;
+dy(8) =  Tran_ALK_d_di - Tran_ALK_di_p - Mix_ALK_di_p - 2*mccb_di ;
 
 %%%% ALK_s
-dy(9) =  Tran_ALK_d_s + Tran_ALK_p_s - Tran_ALK_s_h + Mix_ALK_d_s - 2*SideP_s + 0.25*pyF_s - 2*ironO_s - sulfO_s + 15*SironR_s -4*ironR_s + 0.5*sulfR_s - 3*FeIIIscavenging_s;
+dy(9) =  Tran_ALK_d_s + Tran_ALK_p_s - Tran_ALK_s_h + Mix_ALK_d_s ;
 
 %%%% ALK_h
-dy(10) =  Tran_ALK_s_h - Tran_ALK_h_d + Mix_ALK_d_h - 2*SideP_h + 0.25*pyF_h - 2*ironO_h - sulfO_h + 15*SironR_h - 4*ironR_h + 0.5*sulfR_h - 3*FeIIIscavenging_h;
+dy(10) =  Tran_ALK_s_h - Tran_ALK_h_d + Mix_ALK_d_h ;
 
 %%%% ALK_d
-dy(11) =  Tran_ALK_h_d - Tran_ALK_d_s - Tran_ALK_d_di - Mix_ALK_d_s - Mix_ALK_d_h - 2*mccb_d - 2*SideP_d + 0.25*pyF_d - 2*ironO_d - sulfO_d + 15*SironR_d - 4*ironR_d + 0.5*sulfR_d - 3*FeIIIscavenging_d;
+dy(11) =  Tran_ALK_h_d - Tran_ALK_d_s - Tran_ALK_d_di - Mix_ALK_d_s - Mix_ALK_d_h - 2*mccb_d  ;
+
+
+
+
+
+%%%% with Fe, S cycles
+
+% %%%% DIC_p
+% dy(2) = AirSea_p + Tran_DIC_di_p - Tran_DIC_p_s + Mix_DIC_di_p + 2*carbw + 2*silw - mccb_p - pripr_p + remin_p + DICbenthic_p - SideP_p;
+% 
+% %%%% DIC_di
+% dy(3) =  Tran_DIC_d_di - Tran_DIC_di_p - Mix_DIC_di_p - mccb_di  + remin_di + DICbenthic_di - SideP_di;
+% 
+% %%%% DIC_s
+% dy(4) = AirSea_s + Tran_DIC_d_s + Tran_DIC_p_s + Mix_DIC_d_s - Tran_DIC_s_h - pripr_s + remin_s - SideP_s;
+% 
+% %%%% DIC_h
+% dy(5) = AirSea_h + Tran_DIC_s_h + Mix_DIC_d_h - Tran_DIC_h_d - pripr_h + remin_h - SideP_h;
+% 
+% %%%% DIC_d
+% dy(6) =  Tran_DIC_h_d - Tran_DIC_d_s - Tran_DIC_d_di - Mix_DIC_d_s - Mix_DIC_d_h - mccb_d + remin_d + DICbenthic_d - SideP_d;
+% 
+% %%%% ALK_p
+% dy(7) =  Tran_ALK_di_p - Tran_ALK_p_s + Mix_ALK_di_p + 2 * carbw + 2 * silw - 2 * mccb_p - 2 * SideP_p + 0.25 * pyF_p - 2 * ironO_p - sulfO_p + 15 * SironR_p  -4*ironR_p + 0.5*sulfR_p - 3*FeIIIscavenging_p;
+% 
+% %%%% ALK_di
+% dy(8) =  Tran_ALK_d_di - Tran_ALK_di_p - Mix_ALK_di_p - 2*mccb_di - 2*SideP_di + 0.25*pyF_di - 2*ironO_di - sulfO_di + 15*SironR_di  -4*ironR_di + 0.5*sulfR_di - 3*FeIIIscavenging_di;
+% 
+% %%%% ALK_s
+% dy(9) =  Tran_ALK_d_s + Tran_ALK_p_s - Tran_ALK_s_h + Mix_ALK_d_s - 2*SideP_s + 0.25*pyF_s - 2*ironO_s - sulfO_s + 15*SironR_s -4*ironR_s + 0.5*sulfR_s - 3*FeIIIscavenging_s;
+% 
+% %%%% ALK_h
+% dy(10) =  Tran_ALK_s_h - Tran_ALK_h_d + Mix_ALK_d_h - 2*SideP_h + 0.25*pyF_h - 2*ironO_h - sulfO_h + 15*SironR_h - 4*ironR_h + 0.5*sulfR_h - 3*FeIIIscavenging_h;
+% 
+% %%%% ALK_d
+% dy(11) =  Tran_ALK_h_d - Tran_ALK_d_s - Tran_ALK_d_di - Mix_ALK_d_s - Mix_ALK_d_h - 2*mccb_d - 2*SideP_d + 0.25*pyF_d - 2*ironO_d - sulfO_d + 15*SironR_d - 4*ironR_d + 0.5*sulfR_d - 3*FeIIIscavenging_d;
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Carbon isotopes   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%% CO2_a * d13c_a
-dy(12) = - AirSea_ap*d13c_atm - AirSea_as*d13c_atm - AirSea_ah*d13c_atm + AirSea_pa*(d13c_DIC_p - capdelDIC_g) + AirSea_sa*(d13c_DIC_s - capdelDIC_g) + AirSea_ha*(d13c_DIC_h - capdelDIC_g)  + ccdeg*d13c_C + ocdeg*d13c_G + oxidw*d13c_G - locb*(d13c_atm - capdelC_land) - carbw*d13c_atm  - 2*silw*d13c_atm + CO2_input*d13c_CO2_input;
+% dy(12) = - AirSea_ap*d13c_atm - AirSea_as*d13c_atm - AirSea_ah*d13c_atm + AirSea_pa*(d13c_DIC_p - capdelDIC_g) + AirSea_sa*(d13c_DIC_s - capdelDIC_g) + AirSea_ha*(d13c_DIC_h - capdelDIC_g)  + ccdeg*d13c_C + ocdeg*d13c_G + oxidw*d13c_G - locb*(d13c_atm - capdelC_land) - carbw*d13c_atm  - 2*silw*d13c_atm + CO2_input*d13c_CO2_input;
 
 %%%% DIC_p * d13c_p
-dy(13) = AirSea_ap*d13c_atm - AirSea_pa*(d13c_DIC_p - capdelDIC_g) + Tran_DIC_di_p*d13c_DIC_di - Tran_DIC_p_s*d13c_DIC_p + mixcoeff_dip_m3_yr*(DIC_conc_di * d13c_DIC_di - DIC_conc_p*d13c_DIC_p) + carbw*d13c_C + carbw*d13c_atm + 2*silw*d13c_atm - mccb_p*d13c_DIC_p - pripr_p*(d13c_DIC_p - capdelB) + remin_p*d13c_POC_p + DICbenthic_p*d13c_POC_p - SideP_p*d13c_DIC_p ;
+% dy(13) = AirSea_ap*d13c_atm - AirSea_pa*(d13c_DIC_p - capdelDIC_g) + Tran_DIC_di_p*d13c_DIC_di - Tran_DIC_p_s*d13c_DIC_p + mixcoeff_dip_m3_yr*(DIC_conc_di * d13c_DIC_di - DIC_conc_p*d13c_DIC_p) + carbw*d13c_C + carbw*d13c_atm + 2*silw*d13c_atm - mccb_p*d13c_DIC_p - pripr_p*(d13c_DIC_p - capdelB) + remin_p*d13c_POC_p + DICbenthic_p*d13c_POC_p - SideP_p*d13c_DIC_p ;
 
 %%%% DIC_di * d13c_di
-dy(14) = Tran_DIC_d_di*d13c_DIC_d - Tran_DIC_di_p*d13c_DIC_di - mixcoeff_dip_m3_yr * (DIC_conc_di*d13c_DIC_di - DIC_conc_p*d13c_DIC_p)  - mccb_di*d13c_DIC_di + remin_di*d13c_POC_di + DICbenthic_di*d13c_POC_di - SideP_di*d13c_DIC_di ;
+% dy(14) = Tran_DIC_d_di*d13c_DIC_d - Tran_DIC_di_p*d13c_DIC_di - mixcoeff_dip_m3_yr * (DIC_conc_di*d13c_DIC_di - DIC_conc_p*d13c_DIC_p)  - mccb_di*d13c_DIC_di + remin_di*d13c_POC_di + DICbenthic_di*d13c_POC_di - SideP_di*d13c_DIC_di ;
 
 %%%% DIC_s * d13c_s
-dy(15) = AirSea_as*d13c_atm - AirSea_sa*(d13c_DIC_s - capdelDIC_g) + Tran_DIC_p_s * d13c_DIC_p + Tran_DIC_d_s*d13c_DIC_d - Tran_DIC_s_h*d13c_DIC_s + mixcoeff_ds_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_s*d13c_DIC_s) - pripr_s*(d13c_DIC_s - capdelB) + remin_s*d13c_POC_s - SideP_s*d13c_DIC_s;
+% dy(15) = AirSea_as*d13c_atm - AirSea_sa*(d13c_DIC_s - capdelDIC_g) + Tran_DIC_p_s * d13c_DIC_p + Tran_DIC_d_s*d13c_DIC_d - Tran_DIC_s_h*d13c_DIC_s + mixcoeff_ds_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_s*d13c_DIC_s) - pripr_s*(d13c_DIC_s - capdelB) + remin_s*d13c_POC_s - SideP_s*d13c_DIC_s;
 
 %%%% DIC_h * d13c_h
-dy(16) = AirSea_ah*d13c_atm - AirSea_ha*(d13c_DIC_h - capdelDIC_g) + Tran_DIC_s_h*d13c_DIC_s - Tran_DIC_h_d*d13c_DIC_h + mixcoeff_dh_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_h*d13c_DIC_h) - pripr_h*(d13c_DIC_h - capdelB) + remin_h*d13c_POC_h - SideP_h*d13c_DIC_h;
+% dy(16) = AirSea_ah*d13c_atm - AirSea_ha*(d13c_DIC_h - capdelDIC_g) + Tran_DIC_s_h*d13c_DIC_s - Tran_DIC_h_d*d13c_DIC_h + mixcoeff_dh_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_h*d13c_DIC_h) - pripr_h*(d13c_DIC_h - capdelB) + remin_h*d13c_POC_h - SideP_h*d13c_DIC_h;
 
 %%%% DIC_d * d13c_d
-dy(17) = Tran_DIC_h_d*d13c_DIC_h - Tran_DIC_d_s*d13c_DIC_d - Tran_DIC_d_di*d13c_DIC_d - mixcoeff_ds_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_s*d13c_DIC_s) - mixcoeff_dh_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_h*d13c_DIC_h) - mccb_d*d13c_DIC_d + (remin_d+ DICbenthic_d)*d13c_POC_d - SideP_d*d13c_DIC_d;
+% dy(17) = Tran_DIC_h_d*d13c_DIC_h - Tran_DIC_d_s*d13c_DIC_d - Tran_DIC_d_di*d13c_DIC_d - mixcoeff_ds_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_s*d13c_DIC_s) - mixcoeff_dh_m3_yr*(DIC_conc_d *d13c_DIC_d - DIC_conc_h*d13c_DIC_h) - mccb_d*d13c_DIC_d + (remin_d+ DICbenthic_d)*d13c_POC_d - SideP_d*d13c_DIC_d;
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   POC   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% POC_p
-dy(18) = pripr_p - remin_p - Tran_POC_p_s - water_sediment_p - Tran_POC_p_di;
+% dy(18) = pripr_p - remin_p - Tran_POC_p_s - water_sediment_p - Tran_POC_p_di;
 
 %%%% POC_di
-dy(19) = - remin_di + Tran_POC_d_di + Tran_POC_p_di - water_sediment_di;
+% dy(19) = - remin_di + Tran_POC_d_di + Tran_POC_p_di - water_sediment_di;
 
 %%%% POC_s
-dy(20) = pripr_s - remin_s + Tran_POC_p_s - Tran_POC_s_h - Tran_POC_s_d ;
+% dy(20) = pripr_s - remin_s + Tran_POC_p_s - Tran_POC_s_h - Tran_POC_s_d ;
 
 %%%% POC_h
-dy(21) = pripr_h - remin_h + Tran_POC_s_h - Tran_POC_h_d ;
+% dy(21) = pripr_h - remin_h + Tran_POC_s_h - Tran_POC_h_d ;
 
 %%%% POC_d
-dy(22) = - remin_d + Tran_POC_s_d + Tran_POC_h_d - Tran_POC_d_di - water_sediment_d ;
+% dy(22) = - remin_d + Tran_POC_s_d + Tran_POC_h_d - Tran_POC_d_di - water_sediment_d ;
+
+
+
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   PO4   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% DP_p
-dy(23) = psea + phosbenthic_p - Tran_DP_p_s + Tran_DP_di_p + Mix_DP_di_p - pripr_p/pars.Red_C_P + remin_p/pars.Red_C_P ;
+% dy(23) = psea + phosbenthic_p - Tran_DP_p_s + Tran_DP_di_p + Mix_DP_di_p - pripr_p/pars.Red_C_P + remin_p/pars.Red_C_P ;
 
 %%%% DP_di
-dy(24) = phosbenthic_di + Tran_DP_d_di - Tran_DP_di_p - Mix_DP_di_p + remin_di/pars.Red_C_P ;
+% dy(24) = phosbenthic_di + Tran_DP_d_di - Tran_DP_di_p - Mix_DP_di_p + remin_di/pars.Red_C_P ;
 
 %%%% DP_s
-dy(25) = Tran_DP_p_s + Tran_DP_d_s + Mix_DP_d_s + remin_s/pars.Red_C_P - pripr_s/pars.Red_C_P  - Tran_DP_s_h ;
+% dy(25) = Tran_DP_p_s + Tran_DP_d_s + Mix_DP_d_s + remin_s/pars.Red_C_P - pripr_s/pars.Red_C_P  - Tran_DP_s_h ;
 
 %%%% DP_h
-dy(26) = Tran_DP_s_h - Tran_DP_h_d + Mix_DP_d_h - pripr_h/pars.Red_C_P + remin_h/pars.Red_C_P ;
+% dy(26) = Tran_DP_s_h - Tran_DP_h_d + Mix_DP_d_h - pripr_h/pars.Red_C_P + remin_h/pars.Red_C_P ;
 
 %%%% DP_d
-dy(27) = phosbenthic_d + Tran_DP_h_d - Tran_DP_d_di - Tran_DP_d_s - Mix_DP_d_s - Mix_DP_d_h  + remin_d/pars.Red_C_P ;
+% dy(27) = phosbenthic_d + Tran_DP_h_d - Tran_DP_d_di - Tran_DP_d_s - Mix_DP_d_s - Mix_DP_d_h  + remin_d/pars.Red_C_P ;
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   organic C isotopes   %%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% d13c_POC_p
-dy(28) = pripr_p*(d13c_DIC_p - capdelB) - remin_p*d13c_POC_p - Tran_POC_p_s*d13c_POC_p - water_sediment_p*d13c_POC_p - Tran_POC_p_di*d13c_POC_p;
+% dy(28) = pripr_p*(d13c_DIC_p - capdelB) - remin_p*d13c_POC_p - Tran_POC_p_s*d13c_POC_p - water_sediment_p*d13c_POC_p - Tran_POC_p_di*d13c_POC_p;
 
 %%%% d13c_POC_di
-dy(29) =  - remin_di*d13c_POC_di + Tran_POC_d_di*d13c_POC_d + Tran_POC_p_di*d13c_POC_p - water_sediment_di*d13c_POC_di;
+% dy(29) =  - remin_di*d13c_POC_di + Tran_POC_d_di*d13c_POC_d + Tran_POC_p_di*d13c_POC_p - water_sediment_di*d13c_POC_di;
 
 %%%% d13c_POC_s
-dy(30) = pripr_s*(d13c_DIC_s - capdelB) - remin_s*d13c_POC_s + Tran_POC_p_s*d13c_POC_p - Tran_POC_s_h*d13c_POC_s - Tran_POC_s_d*d13c_POC_s ;
+% dy(30) = pripr_s*(d13c_DIC_s - capdelB) - remin_s*d13c_POC_s + Tran_POC_p_s*d13c_POC_p - Tran_POC_s_h*d13c_POC_s - Tran_POC_s_d*d13c_POC_s ;
 
 %%%% d13c_POC_h
-dy(31) = pripr_h*(d13c_DIC_h - capdelB) - remin_h*d13c_POC_h + Tran_POC_s_h*d13c_POC_s - Tran_POC_h_d*d13c_POC_h ;
+% dy(31) = pripr_h*(d13c_DIC_h - capdelB) - remin_h*d13c_POC_h + Tran_POC_s_h*d13c_POC_s - Tran_POC_h_d*d13c_POC_h ;
 
 %%%% d13c_POC_d
-dy(32) = - remin_d*d13c_POC_d + Tran_POC_s_d*d13c_POC_s + Tran_POC_h_d*d13c_POC_h - Tran_POC_d_di*d13c_POC_d - water_sediment_d*d13c_POC_d ;
+% dy(32) = - remin_d*d13c_POC_d + Tran_POC_s_d*d13c_POC_s + Tran_POC_h_d*d13c_POC_h - Tran_POC_d_di*d13c_POC_d - water_sediment_d*d13c_POC_d ;
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   oxygen   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% O2_a
-dy(33) = - ocdeg/pars.Red_C_O  - oxidw/pars.Red_C_O  + locb/pars.Red_C_O - AirSeaO2_p - AirSeaO2_s - AirSeaO2_h - 2*pyrw  + Oxygenfluxtoatmos - 2*(methanogenesis_p  + methanogenesis_di + methanogenesis_d) ; 
+% dy(33) = - ocdeg/pars.Red_C_O  - oxidw/pars.Red_C_O  + locb/pars.Red_C_O - AirSeaO2_p - AirSeaO2_s - AirSeaO2_h - 2*pyrw  + Oxygenfluxtoatmos - 2*(methanogenesis_p  + methanogenesis_di + methanogenesis_d) ; 
 
 %%%% O2_p
-dy(34) = oxygenbentic_p + AirSeaO2_p + Tran_O2_di_p - Tran_O2_p_s + Mix_O2_di_p  + pripr_p_O - AR_p/pars.Red_C_O - 0.25*ironO_p - 2*sulfO_p;
+% dy(34) = oxygenbentic_p + AirSeaO2_p + Tran_O2_di_p - Tran_O2_p_s + Mix_O2_di_p  + pripr_p_O - AR_p/pars.Red_C_O - 0.25*ironO_p - 2*sulfO_p;
 
 %%%% O2_di
-dy(35) = oxygenbentic_di + Tran_O2_d_di - Tran_O2_di_p - Mix_O2_di_p - AR_di/pars.Red_C_O - 0.25*ironO_di - 2*sulfO_di;
+% dy(35) = oxygenbentic_di + Tran_O2_d_di - Tran_O2_di_p - Mix_O2_di_p - AR_di/pars.Red_C_O - 0.25*ironO_di - 2*sulfO_di;
 
 %%%% O2_s
-dy(36) = AirSeaO2_s + Tran_O2_p_s + Tran_O2_d_s - Tran_O2_s_h + Mix_O2_d_s + pripr_s/pars.Red_C_O - AR_s/pars.Red_C_O - 0.25*ironO_s - 2*sulfO_s;
+% dy(36) = AirSeaO2_s + Tran_O2_p_s + Tran_O2_d_s - Tran_O2_s_h + Mix_O2_d_s + pripr_s/pars.Red_C_O - AR_s/pars.Red_C_O - 0.25*ironO_s - 2*sulfO_s;
 
 %%%% O2_h
-dy(37) = AirSeaO2_h + Tran_O2_s_h - Tran_O2_h_d  + Mix_O2_d_h + pripr_h/pars.Red_C_O - AR_h/pars.Red_C_O - 0.25*ironO_h - 2*sulfO_h;
+% dy(37) = AirSeaO2_h + Tran_O2_s_h - Tran_O2_h_d  + Mix_O2_d_h + pripr_h/pars.Red_C_O - AR_h/pars.Red_C_O - 0.25*ironO_h - 2*sulfO_h;
 
 %%%% O2_d
-dy(38) = oxygenbentic_d + Tran_O2_h_d - Tran_O2_d_di - Tran_O2_d_s - Mix_O2_d_s - Mix_O2_d_h - AR_d/pars.Red_C_O - 0.25*ironO_d - 2*sulfO_d ;
+% dy(38) = oxygenbentic_d + Tran_O2_h_d - Tran_O2_d_di - Tran_O2_d_s - Mix_O2_d_s - Mix_O2_d_h - AR_d/pars.Red_C_O - 0.25*ironO_d - 2*sulfO_d ;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   Fe (III)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% FeIII_p
-dy(39) = FeIIIw + Tran_FeIII_di_p - Tran_FeIII_p_s + Mix_FeIII_di_p - pripr_p/pars.Red_C_Fe + remin_p/pars.Red_C_Fe - FeIIIscavenging_p - 4*ironR_p + ironO_p - 8*SironR_p;
+% dy(39) = FeIIIw + Tran_FeIII_di_p - Tran_FeIII_p_s + Mix_FeIII_di_p - pripr_p/pars.Red_C_Fe + remin_p/pars.Red_C_Fe - FeIIIscavenging_p - 4*ironR_p + ironO_p - 8*SironR_p;
 
 %%%% FeIII_di
-dy(40) = Tran_FeIII_d_di - Tran_FeIII_di_p - Mix_FeIII_di_p + remin_di/pars.Red_C_Fe - FeIIIscavenging_di - 4*ironR_di + ironO_di - 8*SironR_di;
+% dy(40) = Tran_FeIII_d_di - Tran_FeIII_di_p - Mix_FeIII_di_p + remin_di/pars.Red_C_Fe - FeIIIscavenging_di - 4*ironR_di + ironO_di - 8*SironR_di;
 
 %%%% FeIII_s
-dy(41) = FeIIIa_s + Tran_FeIII_p_s - Tran_FeIII_s_h + Tran_FeIII_d_s + Mix_FeIII_d_s - pripr_s/pars.Red_C_Fe + remin_s/pars.Red_C_Fe - FeIIIscavenging_s - 4*ironR_s  + ironO_s - 8*SironR_s;
+% dy(41) = FeIIIa_s + Tran_FeIII_p_s - Tran_FeIII_s_h + Tran_FeIII_d_s + Mix_FeIII_d_s - pripr_s/pars.Red_C_Fe + remin_s/pars.Red_C_Fe - FeIIIscavenging_s - 4*ironR_s  + ironO_s - 8*SironR_s;
 
 %%%% FeIII_h
-dy(42) = pars.FeIIIa_h + Tran_FeIII_s_h - Tran_FeIII_h_d + Mix_FeIII_d_h - pripr_h/pars.Red_C_Fe + remin_h/pars.Red_C_Fe - FeIIIscavenging_h - 4*ironR_h  + ironO_h - 8*SironR_h;
+% dy(42) = pars.FeIIIa_h + Tran_FeIII_s_h - Tran_FeIII_h_d + Mix_FeIII_d_h - pripr_h/pars.Red_C_Fe + remin_h/pars.Red_C_Fe - FeIIIscavenging_h - 4*ironR_h  + ironO_h - 8*SironR_h;
 
 %%%% FeIII_d
-dy(43) = - Tran_FeIII_d_di - Tran_FeIII_d_s + Tran_FeIII_h_d - Mix_FeIII_d_s - Mix_FeIII_d_h + remin_d/pars.Red_C_Fe - FeIIIscavenging_d - 4*ironR_d  + ironO_d - 8*SironR_d;
+% dy(43) = - Tran_FeIII_d_di - Tran_FeIII_d_s + Tran_FeIII_h_d - Mix_FeIII_d_s - Mix_FeIII_d_h + remin_d/pars.Red_C_Fe - FeIIIscavenging_d - 4*ironR_d  + ironO_d - 8*SironR_d;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   SO4    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% SO4_p
-dy(44) = sulfatebentic_p + pyrw + gypw - mgsb + Tran_SO4_di_p - Tran_SO4_p_s + Mix_SO4_di_p - 0.5*sulfR_p/pars.Red_C_O + sulfO_p + SironR_p - 0.25*pyF_p;
+% dy(44) = sulfatebentic_p + pyrw + gypw - mgsb + Tran_SO4_di_p - Tran_SO4_p_s + Mix_SO4_di_p - 0.5*sulfR_p/pars.Red_C_O + sulfO_p + SironR_p - 0.25*pyF_p;
 
 %%%% SO4_di
-dy(45) = sulfatebentic_di + Tran_SO4_d_di + sulfO_di + SironR_di - Tran_SO4_di_p - Mix_SO4_di_p - 0.5*sulfR_di/pars.Red_C_O - 0.25*pyF_di;
+% dy(45) = sulfatebentic_di + Tran_SO4_d_di + sulfO_di + SironR_di - Tran_SO4_di_p - Mix_SO4_di_p - 0.5*sulfR_di/pars.Red_C_O - 0.25*pyF_di;
 
 %%%% SO4_s
-dy(46) = Tran_SO4_p_s - Tran_SO4_s_h + Tran_SO4_d_s + Mix_SO4_d_s - 0.5*sulfR_s/pars.Red_C_O + sulfO_s + SironR_s - 0.25*pyF_s;
+% dy(46) = Tran_SO4_p_s - Tran_SO4_s_h + Tran_SO4_d_s + Mix_SO4_d_s - 0.5*sulfR_s/pars.Red_C_O + sulfO_s + SironR_s - 0.25*pyF_s;
 
 %%%% SO4_h
-dy(47) = Tran_SO4_s_h - Tran_SO4_h_d + Mix_SO4_d_h - 0.5*sulfR_h/pars.Red_C_O + sulfO_h + SironR_h - 0.25*pyF_h;
+% dy(47) = Tran_SO4_s_h - Tran_SO4_h_d + Mix_SO4_d_h - 0.5*sulfR_h/pars.Red_C_O + sulfO_h + SironR_h - 0.25*pyF_h;
 
 %%%% SO4_d
-dy(48) = sulfatebentic_d + Tran_SO4_h_d - Tran_SO4_d_di - Tran_SO4_d_s - Mix_SO4_d_s - Mix_SO4_d_h - 0.5*sulfR_d/pars.Red_C_O + sulfO_d + SironR_d - 0.25*pyF_d;
+% dy(48) = sulfatebentic_d + Tran_SO4_h_d - Tran_SO4_d_di - Tran_SO4_d_s - Mix_SO4_d_s - Mix_SO4_d_h - 0.5*sulfR_d/pars.Red_C_O + sulfO_d + SironR_d - 0.25*pyF_d;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   Fe (II)   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 %%%% FeII_p
-dy(49) = FeIIbenthic_p + Tran_FeII_di_p - Tran_FeII_p_s + Mix_FeII_di_p + 4*ironR_p - pyF_p - ironO_p + 8*SironR_p - SideP_p;
+% dy(49) = FeIIbenthic_p + Tran_FeII_di_p - Tran_FeII_p_s + Mix_FeII_di_p + 4*ironR_p - pyF_p - ironO_p + 8*SironR_p - SideP_p;
 
 %%%% FeII_di
-dy(50) = FeIIbenthic_di + Tran_FeII_d_di - Tran_FeII_di_p - Mix_FeII_di_p + 4*ironR_di - pyF_di - ironO_di + 8*SironR_di - SideP_di;
+% dy(50) = FeIIbenthic_di + Tran_FeII_d_di - Tran_FeII_di_p - Mix_FeII_di_p + 4*ironR_di - pyF_di - ironO_di + 8*SironR_di - SideP_di;
 
 %%%% FeII_s
-dy(51) = Tran_FeII_p_s - Tran_FeII_s_h + Tran_FeII_d_s + Mix_FeII_d_s + 4*ironR_s - pyF_s - ironO_s + 8*SironR_s - SideP_s;
+% dy(51) = Tran_FeII_p_s - Tran_FeII_s_h + Tran_FeII_d_s + Mix_FeII_d_s + 4*ironR_s - pyF_s - ironO_s + 8*SironR_s - SideP_s;
 
 %%%% FeII_h
-dy(52) = Tran_FeII_s_h - Tran_FeII_h_d + Mix_FeII_d_h + 4*ironR_h - pyF_h - ironO_h + 8*SironR_h - SideP_h;
+% dy(52) = Tran_FeII_s_h - Tran_FeII_h_d + Mix_FeII_d_h + 4*ironR_h - pyF_h - ironO_h + 8*SironR_h - SideP_h;
 
 %%%% FeII_d
-dy(53) = FeIIbenthic_d + FeIIhydro + Tran_FeII_h_d - Tran_FeII_d_di - Tran_FeII_d_s - Mix_FeII_d_s - Mix_FeII_d_h + 4*ironR_d - pyF_d - ironO_d + 8*SironR_d - SideP_d;
+% dy(53) = FeIIbenthic_d + FeIIhydro + Tran_FeII_h_d - Tran_FeII_d_di - Tran_FeII_d_s - Mix_FeII_d_s - Mix_FeII_d_h + 4*ironR_d - pyF_d - ironO_d + 8*SironR_d - SideP_d;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   H2S   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% H2S_p
-dy(54) = Tran_H2S_di_p - Tran_H2S_p_s + Mix_H2S_di_p + 0.5*sulfR_p/pars.Red_C_O - 1.75*pyF_p - sulfO_p - SironR_p;
+% dy(54) = Tran_H2S_di_p - Tran_H2S_p_s + Mix_H2S_di_p + 0.5*sulfR_p/pars.Red_C_O - 1.75*pyF_p - sulfO_p - SironR_p;
 
 %%%% H2S_di
-dy(55) = Tran_H2S_d_di - Tran_H2S_di_p - Mix_H2S_di_p  + 0.5*sulfR_di/pars.Red_C_O - 1.75*pyF_di - sulfO_di - SironR_di;
+% dy(55) = Tran_H2S_d_di - Tran_H2S_di_p - Mix_H2S_di_p  + 0.5*sulfR_di/pars.Red_C_O - 1.75*pyF_di - sulfO_di - SironR_di;
 
 %%%% H2S_s
-dy(56) = Tran_H2S_p_s - Tran_H2S_s_h + Tran_H2S_d_s + Mix_H2S_d_s + 0.5*sulfR_s/pars.Red_C_O - 1.75*pyF_s - sulfO_s - SironR_s;
+% dy(56) = Tran_H2S_p_s - Tran_H2S_s_h + Tran_H2S_d_s + Mix_H2S_d_s + 0.5*sulfR_s/pars.Red_C_O - 1.75*pyF_s - sulfO_s - SironR_s;
 
 %%%% H2S_h
-dy(57) = Tran_H2S_s_h - Tran_H2S_h_d + Mix_H2S_d_h + 0.5*sulfR_h/pars.Red_C_O - 1.75*pyF_h - sulfO_h - SironR_h;
+% dy(57) = Tran_H2S_s_h - Tran_H2S_h_d + Mix_H2S_d_h + 0.5*sulfR_h/pars.Red_C_O - 1.75*pyF_h - sulfO_h - SironR_h;
 
 %%%% H2S_d
-dy(58) = Tran_H2S_h_d - Tran_H2S_d_di - Tran_H2S_d_s - Mix_H2S_d_s - Mix_H2S_d_h + 0.5*sulfR_d/pars.Red_C_O - 1.75*pyF_d - sulfO_d - SironR_d;
+% dy(58) = Tran_H2S_h_d - Tran_H2S_d_di - Tran_H2S_d_s - Mix_H2S_d_s - Mix_H2S_d_h + 0.5*sulfR_d/pars.Red_C_O - 1.75*pyF_d - sulfO_d - SironR_d;
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   SO4 isotopes   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%%% d34s_SO4_p
-dy(59) = sulfatebentic_p*(d34s_SO4_p - capdelS) + (pyrw + pyrdeg)*d34s_PYR + (gypw + gypdeg)*d34s_GYP - mgsb*d34s_SO4_p + Tran_SO4_di_p*d34s_SO4_di - Tran_SO4_p_s*d34s_SO4_p + Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_p/pars.Red_C_O*(d34s_SO4_p - capdelS) + sulfO_p*(d34s_SO4_p - capdelS) + SironR_p*(d34s_SO4_p - capdelS) - 0.25*pyF_p*(d34s_SO4_p - capdelS);
+% dy(59) = sulfatebentic_p*(d34s_SO4_p - capdelS) + (pyrw + pyrdeg)*d34s_PYR + (gypw + gypdeg)*d34s_GYP - mgsb*d34s_SO4_p + Tran_SO4_di_p*d34s_SO4_di - Tran_SO4_p_s*d34s_SO4_p + Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_p/pars.Red_C_O*(d34s_SO4_p - capdelS) + sulfO_p*(d34s_SO4_p - capdelS) + SironR_p*(d34s_SO4_p - capdelS) - 0.25*pyF_p*(d34s_SO4_p - capdelS);
 
 %%%% d34s_SO4_di
-dy(60) = sulfatebentic_di*(d34s_SO4_di - capdelS) + Tran_SO4_d_di*d34s_SO4_d + sulfO_di*(d34s_SO4_di - capdelS) + SironR_di*(d34s_SO4_di - capdelS) - Tran_SO4_di_p*d34s_SO4_di - Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_di/pars.Red_C_O*(d34s_SO4_p - capdelS) - 0.25*pyF_di*(d34s_SO4_p - capdelS);
+% dy(60) = sulfatebentic_di*(d34s_SO4_di - capdelS) + Tran_SO4_d_di*d34s_SO4_d + sulfO_di*(d34s_SO4_di - capdelS) + SironR_di*(d34s_SO4_di - capdelS) - Tran_SO4_di_p*d34s_SO4_di - Mix_SO4_di_p*d34s_SO4_di - 0.5*sulfR_di/pars.Red_C_O*(d34s_SO4_p - capdelS) - 0.25*pyF_di*(d34s_SO4_p - capdelS);
 
 %%%% d34s_SO4_s
-dy(61) = Tran_SO4_p_s*d34s_SO4_p - Tran_SO4_s_h*d34s_SO4_s + Tran_SO4_d_s*d34s_SO4_d + Mix_SO4_d_s*d34s_SO4_d - 0.5*sulfR_s/pars.Red_C_O*(d34s_SO4_s - capdelS) + sulfO_s*(d34s_SO4_s - capdelS) + SironR_s*(d34s_SO4_s - capdelS) - 0.25*pyF_s*(d34s_SO4_s - capdelS);
+% dy(61) = Tran_SO4_p_s*d34s_SO4_p - Tran_SO4_s_h*d34s_SO4_s + Tran_SO4_d_s*d34s_SO4_d + Mix_SO4_d_s*d34s_SO4_d - 0.5*sulfR_s/pars.Red_C_O*(d34s_SO4_s - capdelS) + sulfO_s*(d34s_SO4_s - capdelS) + SironR_s*(d34s_SO4_s - capdelS) - 0.25*pyF_s*(d34s_SO4_s - capdelS);
 
 %%%% d34s_SO4_h
-dy(62) = Tran_SO4_s_h*d34s_SO4_s - Tran_SO4_h_d*d34s_SO4_h + Mix_SO4_d_h*d34s_SO4_d - 0.5*sulfR_h/pars.Red_C_O*(d34s_SO4_h - capdelS) + sulfO_h*(d34s_SO4_h - capdelS) + SironR_h*(d34s_SO4_h - capdelS) - 0.25*pyF_h*(d34s_SO4_h - capdelS);
+% dy(62) = Tran_SO4_s_h*d34s_SO4_s - Tran_SO4_h_d*d34s_SO4_h + Mix_SO4_d_h*d34s_SO4_d - 0.5*sulfR_h/pars.Red_C_O*(d34s_SO4_h - capdelS) + sulfO_h*(d34s_SO4_h - capdelS) + SironR_h*(d34s_SO4_h - capdelS) - 0.25*pyF_h*(d34s_SO4_h - capdelS);
 
 %%%% d34s_SO4_d
-dy(63) = sulfatebentic_d * (d34s_SO4_d - capdelS) + Tran_SO4_h_d*d34s_SO4_h - Tran_SO4_d_di*d34s_SO4_d - Tran_SO4_d_s*d34s_SO4_d - Mix_SO4_d_s*d34s_SO4_d - Mix_SO4_d_h*d34s_SO4_d - 0.5*sulfR_d/pars.Red_C_O*(d34s_SO4_d - capdelS) + sulfO_d*(d34s_SO4_d - capdelS) + SironR_d*(d34s_SO4_d - capdelS) - 0.25*pyF_d*(d34s_SO4_d - capdelS);
+% dy(63) = sulfatebentic_d * (d34s_SO4_d - capdelS) + Tran_SO4_h_d*d34s_SO4_h - Tran_SO4_d_di*d34s_SO4_d - Tran_SO4_d_s*d34s_SO4_d - Mix_SO4_d_s*d34s_SO4_d - Mix_SO4_d_h*d34s_SO4_d - 0.5*sulfR_d/pars.Red_C_O*(d34s_SO4_d - capdelS) + sulfO_d*(d34s_SO4_d - capdelS) + SironR_d*(d34s_SO4_d - capdelS) - 0.25*pyF_d*(d34s_SO4_d - capdelS);
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   Sediments   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% Buried organic carbon (G)
-dy(64) = locb + mocb_p + mocb_di + mocb_d - oxidw - ocdeg ;
+% dy(64) = locb + mocb_p + mocb_di + mocb_d - oxidw - ocdeg ;
 
 %%% Buried carbnate (C)
-dy(65) = mccb_p + mccb_di + mccb_d  - carbw - ccdeg ;
+% dy(65) = mccb_p + mccb_di + mccb_d  - carbw - ccdeg ;
 
 %%% Buried pyrite (PYR)
-dy(66) = pyF_p + pyF_di + pyF_s + pyF_h + pyF_d - sulfatebentic_p - sulfatebentic_di - sulfatebentic_d - pyrw - pyrdeg;
+% dy(66) = pyF_p + pyF_di + pyF_s + pyF_h + pyF_d - sulfatebentic_p - sulfatebentic_di - sulfatebentic_d - pyrw - pyrdeg;
 
 %%% Buried gypsum (GYP)
-dy(67) = mgsb - gypw - gypdeg ;
+% dy(67) = mgsb - gypw - gypdeg ;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%   Sediment isotopes   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 %%% delta_G * G (young)
-dy(68) = locb*(d13c_atm - capdelC_land) + mocb_p*(d13c_DIC_p - capdelB) + mocb_di*(d13c_DIC_di - capdelB) + mocb_d*(d13c_DIC_d - capdelB) - oxidw*d13c_G - ocdeg*d13c_G ;
+% dy(68) = locb*(d13c_atm - capdelC_land) + mocb_p*(d13c_DIC_p - capdelB) + mocb_di*(d13c_DIC_di - capdelB) + mocb_d*(d13c_DIC_d - capdelB) - oxidw*d13c_G - ocdeg*d13c_G ;
 
 %%% delta_C * C (young)
-dy(69) = mccb_p*d13c_DIC_p + mccb_di*d13c_DIC_di + mccb_d*d13c_DIC_d - carbw*d13c_C - ccdeg*d13c_C ; %%%% How to sea floor weathering
+% dy(69) = mccb_p*d13c_DIC_p + mccb_di*d13c_DIC_di + mccb_d*d13c_DIC_d - carbw*d13c_C - ccdeg*d13c_C ; %%%% How to sea floor weathering
 
 %%% delta_PYR * PYR (young)
-dy(70) = pyF_p*(d34s_SO4_p - capdelS) + pyF_di*(d34s_SO4_di - capdelS) + pyF_s*(d34s_SO4_s - capdelS) + pyF_h*(d34s_SO4_h - capdelS) + pyF_d*(d34s_SO4_d - capdelS) - sulfatebentic_p*(d34s_SO4_p - capdelS) - sulfatebentic_di*(d34s_SO4_di - capdelS) - sulfatebentic_d*(d34s_SO4_d - capdelS) - pyrw*d34s_PYR - pyrdeg*d34s_PYR ;
+% dy(70) = pyF_p*(d34s_SO4_p - capdelS) + pyF_di*(d34s_SO4_di - capdelS) + pyF_s*(d34s_SO4_s - capdelS) + pyF_h*(d34s_SO4_h - capdelS) + pyF_d*(d34s_SO4_d - capdelS) - sulfatebentic_p*(d34s_SO4_p - capdelS) - sulfatebentic_di*(d34s_SO4_di - capdelS) - sulfatebentic_d*(d34s_SO4_d - capdelS) - pyrw*d34s_PYR - pyrdeg*d34s_PYR ;
 
 %%% delta_GYP * GYP (young)
-dy(71) = mgsb*d34s_SO4_p - gypw*d34s_GYP - gypdeg*d34s_GYP ;
+% dy(71) = mgsb*d34s_SO4_p - gypw*d34s_GYP - gypdeg*d34s_GYP ;
 
-%%%% reductant input
-reductant_input = pars.k_reductant_input * DEGASS ;
+
+
+
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%   Record full states for single run   %%%%%%%%%%%%%
